@@ -1,0 +1,7 @@
+.vscode/
+.vs/
+obj/
+bin/
+
+# Project-specific ignore rules
+/config.json
