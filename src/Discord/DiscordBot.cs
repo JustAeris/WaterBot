@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
 using DSharpPlus;
+using DSharpPlus.CommandsNext;
+using WaterBot.Commands;
 
 namespace WaterBot.Discord
 {
@@ -25,6 +27,13 @@ namespace WaterBot.Discord
                 Token = _config.Token,
                 TokenType = TokenType.Bot,
             });
+
+            CommandsNextModule commands = _client.UseCommandsNext(new CommandsNextConfiguration()
+            {
+                StringPrefix = "!water",
+            });
+
+            commands.RegisterCommands<GeneralCommandModule>();
 
             await _client.ConnectAsync();
             await Task.Delay(-1);
