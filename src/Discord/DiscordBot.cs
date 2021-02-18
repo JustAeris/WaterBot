@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using WaterBot.Commands;
+using WaterBot.Data;
 
 namespace WaterBot.Discord
 {
@@ -12,12 +13,15 @@ namespace WaterBot.Discord
 
         private DiscordClient _client;
 
+        private UserDataManager _users;
+
         public DiscordBot(string configurationPath)
         {
             if (string.IsNullOrWhiteSpace(configurationPath))
                 throw new ArgumentNullException(nameof(configurationPath));
 
             _config = DiscordBotConfiguration.Load(configurationPath);
+            _users = new UserDataManager("data/users");
         }
 
         public async Task RunAsync()
