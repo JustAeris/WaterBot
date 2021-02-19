@@ -1,38 +1,69 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
+using WaterBot.Discord;
 
 namespace WaterBot.Data
 {
-    public class UserDataManager
+    public static class UserDataManager
     {
-        public string Directory { get; set; }
-
-        public UserDataManager(string directory)
+        static UserDataManager()
         {
-            if (string.IsNullOrWhiteSpace(directory))
-                throw new ArgumentNullException(nameof(directory));
+            Directory = DiscordBotConfiguration.DataDir;
 
-            Directory = directory;
+            if (!System.IO.Directory.Exists(Directory))
+                System.IO.Directory.CreateDirectory(Directory);
         }
 
-        public UserData GetData(ulong userId)
+        private static string Directory { get; }
+
+        public static UserData GetData(ulong userId)
         {
-            string path = Path.Combine(Directory, userId.ToString());
+            var path = $"{Directory}/{userId}.json";
 
             if (!File.Exists(path))
                 return null;
 
-            string content = File.ReadAllText(path);
+            var content = File.ReadAllText(path);
             return JsonConvert.DeserializeObject<UserData>(content);
         }
 
-        public UserData GetData(DiscordUser user)
+        public static UserData GetData(DiscordUser user)
         {
             return GetData(user.Id);
         }
 
-        // TODO: Make data saving possible
+        public static UserData GetData(DiscordMember member)
+        {
+            return GetData(member.Id);
+        }
+
+        public static void SaveData(UserData userData)
+        {
+            string userFile = $"{Directory}/{userData.UserId}.json";
+
+            string json = JsonConvert.SerializeObject(userData, Formatting.Indented);
+
+            using var f =
+                new FileStream(userFile, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite)  { Position = 0 };
+
+            f.Write(Encoding.UTF8.GetBytes(json));
+        }
+
+        public static IEnumerable<UserData> GetAllUserData()
+        {
+            var files = System.IO.Directory.GetFiles(Directory);
+            List<UserData> list = new List<UserData>();
+
+            foreach (string file in files)
+            {
+                list.Add(JsonConvert.DeserializeObject<UserData>(File.ReadAllText(file)));
+            }
+
+            return list;
+        }
     }
 }
