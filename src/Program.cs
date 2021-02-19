@@ -12,7 +12,7 @@ namespace WaterBot
     {
         private static DiscordClient _client;
 
-        private static void Main(string[] args)
+        private static void Main()
         {
             MainAsync().GetAwaiter().GetResult();
         }
