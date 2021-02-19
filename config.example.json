@@ -1,3 +1,4 @@
 {
-    "Token": "<your token here>"
+    "Token": "<your token here>",
+    "DataDir": "<directory where you want data to be saved>"
 }
