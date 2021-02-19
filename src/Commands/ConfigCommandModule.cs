@@ -43,7 +43,7 @@ namespace WaterBot.Commands
         [Command("show")]
         public async Task Show(CommandContext ctx)
         {
-            var userData = UserDataManager.GetData(ctx.Member);
+            UserData userData = UserDataManager.GetData(ctx.Member);
 
             await ctx.RespondAsync(new DiscordEmbedBuilder {Color = DiscordColor.CornflowerBlue}
                 .WithAuthor($"{ctx.Member.Username}'s water reminder configuration", iconUrl: ctx.Member.AvatarUrl)
@@ -55,7 +55,7 @@ namespace WaterBot.Commands
         [Command("reminderon")]
         public async Task ReminderOn(CommandContext ctx)
         {
-            var userData = UserDataManager.GetData(ctx.Member);
+            UserData userData = UserDataManager.GetData(ctx.Member);
             userData.ReminderEnabled = true;
             UserDataManager.SaveData(userData);
 
@@ -65,7 +65,7 @@ namespace WaterBot.Commands
         [Command("reminderoff")]
         public async Task ReminderOff(CommandContext ctx)
         {
-            var userData = UserDataManager.GetData(ctx.Member);
+            UserData userData = UserDataManager.GetData(ctx.Member);
             userData.ReminderEnabled = false;
             UserDataManager.SaveData(userData);
 

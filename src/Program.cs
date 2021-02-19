@@ -26,7 +26,7 @@ namespace WaterBot
                 MinimumLogLevel = LogLevel.Debug
             });
 
-            var commands = _client.UseCommandsNext(new CommandsNextConfiguration
+            CommandsNextExtension commands = _client.UseCommandsNext(new CommandsNextConfiguration
             {
                 StringPrefixes = new[] {"wbot!", "wb!", "water!"}
             });
@@ -34,7 +34,8 @@ namespace WaterBot
             commands.RegisterCommands<GeneralCommandModule>();
             commands.RegisterCommands<ConfigCommandModule>();
 
-            commands.CommandErrored += async (s, e) => { Console.WriteLine(e.Exception); };
+            commands.CommandErrored += (s, e) =>
+                { Console.WriteLine(e.Exception); return Task.CompletedTask; };
 
             await _client.ConnectAsync();
             await Task.Delay(-1);

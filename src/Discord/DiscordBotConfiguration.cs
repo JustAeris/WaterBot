@@ -10,7 +10,7 @@ namespace WaterBot.Discord
             if (!File.Exists("config.json"))
                 return;
 
-            var content = JObject.Parse(File.ReadAllText("config.json"));
+            JObject content = JObject.Parse(File.ReadAllText("config.json"));
 
             Token = (string) content["Token"];
             DataDir = (string) content["DataDir"];

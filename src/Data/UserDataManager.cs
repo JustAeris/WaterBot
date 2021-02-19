@@ -22,12 +22,12 @@ namespace WaterBot.Data
 
         public static UserData GetData(ulong userId)
         {
-            var path = $"{Directory}/{userId}.json";
+            string path = $"{Directory}/{userId}.json";
 
             if (!File.Exists(path))
                 return null;
 
-            var content = File.ReadAllText(path);
+            string content = File.ReadAllText(path);
             return JsonConvert.DeserializeObject<UserData>(content);
         }
 
@@ -43,11 +43,11 @@ namespace WaterBot.Data
 
         public static void SaveData(UserData userData)
         {
-            var userFile = $"{Directory}/{userData.UserId}.json";
+            string userFile = $"{Directory}/{userData.UserId}.json";
 
-            var json = JsonConvert.SerializeObject(userData, Formatting.Indented);
+            string json = JsonConvert.SerializeObject(userData, Formatting.Indented);
 
-            using var f =
+            using FileStream f =
                 new FileStream(userFile, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite)
                     {Position = 0};
 
@@ -56,8 +56,7 @@ namespace WaterBot.Data
 
         public static IEnumerable<UserData> GetAllUserData()
         {
-            var files = System.IO.Directory.GetFiles(Directory);
-            var list = new List<UserData>();
+            string[] files = System.IO.Directory.GetFiles(Directory);
 
             return files.Select(file => JsonConvert.DeserializeObject<UserData>(File.ReadAllText(file))).ToList();
         }
