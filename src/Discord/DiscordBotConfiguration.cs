@@ -16,7 +16,7 @@ namespace WaterBot.Discord
             DataDir = (string) content["DataDir"];
         }
 
-        public static string Token { get; set; }
-        public static string DataDir { get; set; }
+        public static string Token { get; }
+        public static string DataDir { get; }
     }
 }
