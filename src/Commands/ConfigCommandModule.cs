@@ -14,7 +14,7 @@ namespace WaterBot.Commands
     public class ConfigCommandModule : BaseCommandModule
     {
         [Command("save")]
-        public async Task Save(CommandContext ctx, TimeSpan wakeTime, TimeSpan bedTime, int amountPerInterval)
+        public async Task Save(CommandContext ctx, TimeSpan wakeTime, TimeSpan sleepTime, int amountPerInterval)
         {
             if (amountPerInterval > 2000)
             {
@@ -22,7 +22,7 @@ namespace WaterBot.Commands
                 return;
             }
 
-            if (wakeTime > new TimeSpan(24, 0, 0) || bedTime > new TimeSpan(24, 0, 0))
+            if (wakeTime > new TimeSpan(24, 0, 0) || sleepTime > new TimeSpan(24, 0, 0))
             {
                 await ctx.RespondAsync("You cannot set a wake/sleep time per interval higher than 24h!");
                 return;
@@ -32,7 +32,7 @@ namespace WaterBot.Commands
             {
                 AmountPerInterval = amountPerInterval,
                 WakeTime = wakeTime,
-                SleepTime = bedTime,
+                SleepTime = sleepTime,
                 UserId = ctx.User.Id,
                 ReminderEnabled = true
             });
