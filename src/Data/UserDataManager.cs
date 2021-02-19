@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -43,12 +42,13 @@ namespace WaterBot.Data
 
         public static void SaveData(UserData userData)
         {
-            string userFile = $"{Directory}/{userData.UserId}.json";
+            var userFile = $"{Directory}/{userData.UserId}.json";
 
-            string json = JsonConvert.SerializeObject(userData, Formatting.Indented);
+            var json = JsonConvert.SerializeObject(userData, Formatting.Indented);
 
             using var f =
-                new FileStream(userFile, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite)  { Position = 0 };
+                new FileStream(userFile, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite)
+                    {Position = 0};
 
             f.Write(Encoding.UTF8.GetBytes(json));
         }
@@ -56,12 +56,9 @@ namespace WaterBot.Data
         public static IEnumerable<UserData> GetAllUserData()
         {
             var files = System.IO.Directory.GetFiles(Directory);
-            List<UserData> list = new List<UserData>();
+            var list = new List<UserData>();
 
-            foreach (string file in files)
-            {
-                list.Add(JsonConvert.DeserializeObject<UserData>(File.ReadAllText(file)));
-            }
+            foreach (var file in files) list.Add(JsonConvert.DeserializeObject<UserData>(File.ReadAllText(file)));
 
             return list;
         }

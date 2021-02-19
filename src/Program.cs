@@ -28,16 +28,13 @@ namespace WaterBot
 
             var commands = _client.UseCommandsNext(new CommandsNextConfiguration
             {
-                StringPrefixes = new []{"wbot!", "wb!", "water!"}
+                StringPrefixes = new[] {"wbot!", "wb!", "water!"}
             });
 
             commands.RegisterCommands<GeneralCommandModule>();
             commands.RegisterCommands<ConfigCommandModule>();
 
-            commands.CommandErrored += async (s, e) =>
-            {
-                Console.WriteLine(e.Exception);
-            };
+            commands.CommandErrored += async (s, e) => { Console.WriteLine(e.Exception); };
 
             await _client.ConnectAsync();
             await Task.Delay(-1);

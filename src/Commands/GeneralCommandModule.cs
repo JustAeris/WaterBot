@@ -4,12 +4,13 @@ using DSharpPlus.CommandsNext.Attributes;
 
 namespace WaterBot.Commands
 {
-    public class GeneralCommandModule
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class GeneralCommandModule : BaseCommandModule
     {
         [Command("greet")]
-        public async Task GreetCommand(CommandContext context)
+        public async Task GreetCommand(CommandContext ctx)
         {
-            await context.RespondAsync("Hello!");
+            await ctx.RespondAsync("Hello!");
         }
     }
 }

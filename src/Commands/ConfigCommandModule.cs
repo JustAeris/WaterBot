@@ -4,6 +4,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using WaterBot.Data;
+
 // ReSharper disable UnusedMember.Global
 
 namespace WaterBot.Commands
@@ -42,9 +43,9 @@ namespace WaterBot.Commands
         [Command("show")]
         public async Task Show(CommandContext ctx)
         {
-            UserData userData = UserDataManager.GetData(ctx.Member);
+            var userData = UserDataManager.GetData(ctx.Member);
 
-            await ctx.RespondAsync(embed: new DiscordEmbedBuilder{Color = DiscordColor.CornflowerBlue}
+            await ctx.RespondAsync(new DiscordEmbedBuilder {Color = DiscordColor.CornflowerBlue}
                 .WithAuthor($"{ctx.Member.Username}'s water reminder configuration", iconUrl: ctx.Member.AvatarUrl)
                 .AddField("Wake Time", $"```{userData.WakeTime}```", true)
                 .AddField("Sleep Time", $"```{userData.SleepTime}```", true)
@@ -54,7 +55,7 @@ namespace WaterBot.Commands
         [Command("reminderon")]
         public async Task ReminderOn(CommandContext ctx)
         {
-            UserData userData = UserDataManager.GetData(ctx.Member);
+            var userData = UserDataManager.GetData(ctx.Member);
             userData.ReminderEnabled = true;
             UserDataManager.SaveData(userData);
 
@@ -64,7 +65,7 @@ namespace WaterBot.Commands
         [Command("reminderoff")]
         public async Task ReminderOff(CommandContext ctx)
         {
-            UserData userData = UserDataManager.GetData(ctx.Member);
+            var userData = UserDataManager.GetData(ctx.Member);
             userData.ReminderEnabled = false;
             UserDataManager.SaveData(userData);
 
@@ -76,12 +77,9 @@ namespace WaterBot.Commands
         {
             var userData = UserDataManager.GetAllUserData();
 
-            string list = "";
+            var list = "";
 
-            foreach (UserData data in userData)
-            {
-                list += data + "\n";
-            }
+            foreach (var data in userData) list += data + "\n";
 
             await ctx.RespondAsync(list);
         }
