@@ -1,5 +1,4 @@
 using System;
-using DSharpPlus.Entities;
 
 namespace WaterBot.Data
 {
@@ -12,5 +11,13 @@ namespace WaterBot.Data
         public TimeSpan SleepTime { get; set; }
 
         public int AmountPerInterval { get; set; }
+
+        public bool ReminderEnabled { get; set; }
+
+        public override string ToString()
+        {
+            return
+                $"UserID: {UserId}. WakeTime: {WakeTime}. SleepTime: {SleepTime}. AmountPerInterval: {AmountPerInterval}.";
+        }
     }
 }
