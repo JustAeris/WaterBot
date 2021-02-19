@@ -71,17 +71,5 @@ namespace WaterBot.Commands
 
             await ctx.RespondAsync("Your reminder has been turned off!");
         }
-
-        [Command("listall")]
-        public async Task ListAll(CommandContext ctx)
-        {
-            var userData = UserDataManager.GetAllUserData();
-
-            var list = "";
-
-            foreach (var data in userData) list += data + "\n";
-
-            await ctx.RespondAsync(list);
-        }
     }
 }
