@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
@@ -58,9 +59,7 @@ namespace WaterBot.Data
             var files = System.IO.Directory.GetFiles(Directory);
             var list = new List<UserData>();
 
-            foreach (var file in files) list.Add(JsonConvert.DeserializeObject<UserData>(File.ReadAllText(file)));
-
-            return list;
+            return files.Select(file => JsonConvert.DeserializeObject<UserData>(File.ReadAllText(file))).ToList();
         }
     }
 }
