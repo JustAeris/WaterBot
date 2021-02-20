@@ -51,6 +51,8 @@ namespace WaterBot.Data
                 new FileStream(userFile, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite)
                     {Position = 0};
 
+            f.SetLength(0);
+
             f.Write(Encoding.UTF8.GetBytes(json));
         }
 
