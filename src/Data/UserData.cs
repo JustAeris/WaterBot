@@ -12,6 +12,8 @@ namespace WaterBot.Data
 
         public int AmountPerInterval { get; set; }
 
+        public int AmountPerDay { get; set; }
+
         public bool ReminderEnabled { get; set; }
 
         public override string ToString()
