@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -14,28 +15,46 @@ namespace WaterBot.Commands
     public class ConfigCommandModule : BaseCommandModule
     {
         [Command("save")]
-        public async Task Save(CommandContext ctx, TimeSpan wakeTime, TimeSpan sleepTime, int amountPerInterval)
+        public async Task Save(CommandContext ctx, TimeSpan wakeTime, TimeSpan sleepTime, int amountPerInterval, int amountPerDay = 2000)
         {
-            if (amountPerInterval > 2000)
-            {
-                await ctx.RespondAsync("You cannot set an amount per interval higher than 2000mL (2L)!");
-                return;
-            }
-
             if (wakeTime > new TimeSpan(24, 0, 0) || sleepTime > new TimeSpan(24, 0, 0))
             {
                 await ctx.RespondAsync("You cannot set a wake/sleep time per interval higher than 24h!");
                 return;
             }
 
-            UserDataManager.SaveData(new UserData
+            if (wakeTime > sleepTime)
+            {
+                await ctx.RespondAsync("You cannot set a wake time higher than the sleep time!");
+                return;
+            }
+
+            if (amountPerInterval > amountPerDay)
+            {
+                await ctx.RespondAsync("The amount per interval cannot be higher than the amount per day!");
+                return;
+            }
+
+            if (wakeTime.Seconds > 0 || sleepTime.Seconds > 0)
+            {
+                await ctx.RespondAsync(":warning: Seconds will not be taken in account!");
+                sleepTime = sleepTime.Subtract(new TimeSpan(0, 0, sleepTime.Seconds));
+                wakeTime = wakeTime.Subtract(new TimeSpan(0, 0, wakeTime.Seconds));
+            }
+
+            UserData userData = new UserData
             {
                 AmountPerInterval = amountPerInterval,
                 WakeTime = wakeTime,
                 SleepTime = sleepTime,
                 UserId = ctx.User.Id,
+                AmountPerDay = amountPerDay,
                 ReminderEnabled = true
-            });
+            };
+
+            userData.RemindersList = UserData.CalculateReminders(userData).ToList();
+
+            UserDataManager.SaveData(userData);
 
             await ctx.RespondAsync("Config saved!");
         }
