@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace WaterBot
 {
@@ -22,5 +23,7 @@ namespace WaterBot
             if (i != 0)
                 yield return list;
         }
+
+        public static TimeSpan KeepHoursMinutes(this TimeSpan ts) => new TimeSpan(ts.Hours, ts.Minutes, 0);
     }
 }
