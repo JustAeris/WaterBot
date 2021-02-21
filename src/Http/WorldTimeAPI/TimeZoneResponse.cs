@@ -1,4 +1,6 @@
 
+using System;
+
 namespace WaterBot.Http.WorldTimeAPI
 {
     public struct TimeZoneResponse
@@ -6,14 +8,14 @@ namespace WaterBot.Http.WorldTimeAPI
         public string Region;
         public string Name;
 
-        public int Offset;
+        public int UtcOffset;
 
         public TimeZoneResponse(string region, string name, int offset)
         {
             Region = region;
             Name = name;
 
-            Offset = offset;
+            UtcOffset = offset;
         }
     }
 }
