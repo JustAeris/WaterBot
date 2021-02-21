@@ -49,7 +49,7 @@ namespace WaterBot
             commands.CommandErrored += (s, e) =>
                 { Console.WriteLine(e.Exception); return Task.CompletedTask; };
 
-            MessagingSystem dm = new MessagingSystem(_client);
+            NotificationSystem dm = new NotificationSystem(_client);
             dm.Start();
 
             await _client.ConnectAsync();
