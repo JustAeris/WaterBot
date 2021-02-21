@@ -8,6 +8,7 @@ using DSharpPlus.Interactivity.Extensions;
 using Microsoft.Extensions.Logging;
 using WaterBot.Commands;
 using WaterBot.Discord;
+using WaterBot.Scheduled;
 
 namespace WaterBot
 {
@@ -47,6 +48,9 @@ namespace WaterBot
 
             commands.CommandErrored += (s, e) =>
                 { Console.WriteLine(e.Exception); return Task.CompletedTask; };
+
+            MessagingSystem dm = new MessagingSystem(_client);
+            dm.Start();
 
             await _client.ConnectAsync();
             await Task.Delay(-1);
