@@ -45,6 +45,9 @@ namespace WaterBot.Data
             {
                 remindersList.Add(progression);
                 progression += intervalBetweenEachReminder;
+                if (progression <= TimeSpan.FromDays(1)) continue;
+                remindersList.Add(TimeSpan.FromDays(1) - TimeSpan.FromMinutes(1));
+                break;
             }
 
             return remindersList;
