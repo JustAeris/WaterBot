@@ -161,7 +161,7 @@ namespace WaterBot.Commands
             }
             else
             {
-                IEnumerable<IEnumerable<char>> chunks = regionsList.ChunkBy<string>(1024);
+                IEnumerable<IEnumerable<char>> chunks = regionsList.ChunkBy(1024);
 
                 foreach (IEnumerable<char> chars in chunks)
                 {
