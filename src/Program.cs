@@ -32,7 +32,8 @@ namespace WaterBot
 
             CommandsNextExtension commands = _client.UseCommandsNext(new CommandsNextConfiguration
             {
-                StringPrefixes = new[] {"wbot!", "wb!", "water!"}
+                StringPrefixes = new[] {"wbot!", "wb!", "water!"},
+                IgnoreExtraArguments = true
             });
 
             _client.UseInteractivity(new InteractivityConfiguration()
