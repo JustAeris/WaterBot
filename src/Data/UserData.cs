@@ -7,6 +7,8 @@ namespace WaterBot.Data
     {
         public ulong UserId { get; set; }
 
+        public ulong GuildId { get; set; }
+
         public TimeSpan WakeTime { get; set; }
 
         public TimeSpan SleepTime { get; set; }
@@ -20,6 +22,8 @@ namespace WaterBot.Data
         public bool ReminderEnabled { get; set; }
 
         public List<TimeSpan> RemindersList { get; set; }
+
+        public TimeSpan LatestReminder { get; set; }
 
         public override string ToString()
         {
@@ -36,10 +40,9 @@ namespace WaterBot.Data
 
             TimeSpan remindersTimespan = userData.SleepTime - userData.WakeTime;
 
-            TimeSpan intervalBetweenEachReminder = remindersTimespan / remindersNumber;
+            TimeSpan intervalBetweenEachReminder = (remindersTimespan / remindersNumber).KeepHoursMinutes();
 
-            TimeSpan progression = userData.WakeTime;
-            progression = progression.Subtract(new TimeSpan(0, 0, progression.Seconds, progression.Milliseconds));
+            TimeSpan progression = userData.WakeTime.KeepHoursMinutes();
 
             while (progression < userData.SleepTime)
             {
@@ -51,6 +54,20 @@ namespace WaterBot.Data
             }
 
             return remindersList;
+        }
+
+        public static TimeSpan CalculateLatestReminder(IEnumerable<TimeSpan> remindersList, TimeSpan utc)
+        {
+            TimeSpan latestReminder = TimeSpan.Zero;
+
+            foreach (TimeSpan timeSpan in remindersList)
+            {
+                if (timeSpan < utc)
+                    latestReminder = timeSpan;
+                else break;
+            }
+
+            return latestReminder;
         }
     }
 }
