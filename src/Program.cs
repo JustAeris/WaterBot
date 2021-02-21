@@ -2,6 +2,9 @@
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Enums;
+using DSharpPlus.Interactivity.Extensions;
 using Microsoft.Extensions.Logging;
 using WaterBot.Commands;
 using WaterBot.Discord;
@@ -23,12 +26,19 @@ namespace WaterBot
             {
                 Token = DiscordBotConfiguration.Token,
                 TokenType = TokenType.Bot,
-                MinimumLogLevel = LogLevel.Debug
+                MinimumLogLevel = LogLevel.Debug,
+                Intents = DiscordIntents.All
             });
 
             CommandsNextExtension commands = _client.UseCommandsNext(new CommandsNextConfiguration
             {
                 StringPrefixes = new[] {"wbot!", "wb!", "water!"}
+            });
+
+            _client.UseInteractivity(new InteractivityConfiguration()
+            {
+                PollBehaviour = PollBehaviour.KeepEmojis,
+                Timeout = TimeSpan.FromSeconds(30)
             });
 
             commands.RegisterCommands<GeneralCommandModule>();
