@@ -23,12 +23,12 @@ namespace WaterBot.Commands
     // ReSharper disable once ClassNeverInstantiated.Global
     public class ConfigCommandModule : BaseCommandModule
     {
-        [Command("save")]
+        [Command("save"), Description("Allows you to save a reminder configuration.")]
         public async Task Save(CommandContext ctx,
-            TimeSpan wakeTime,
-            TimeSpan sleepTime,
-            int amountPerInterval,
-            int amountPerDay = 2000)
+            [Description("Time you usually wake up. Example: 8h")] TimeSpan wakeTime,
+            [Description("Time you usually sleep. Example: 22h")] TimeSpan sleepTime,
+            [Description("Amount of water in mL you'd like to drink each time.")] int amountPerInterval,
+            [Description("Total amount of water you'd like to drink per day. Defaults to 2000mL (2L).")] int amountPerDay = 2000)
         {
             if (wakeTime >
                 new TimeSpan(24,
@@ -39,7 +39,7 @@ namespace WaterBot.Commands
                     0,
                     0))
             {
-                await ctx.RespondAsync("You cannot set a wake/sleep time per interval higher than 24h!");
+                await ctx.RespondAsync("You cannot set a wake/sleep time higher than 24h!");
                 return;
             }
 
@@ -58,12 +58,8 @@ namespace WaterBot.Commands
             if (wakeTime.Seconds > 0 || sleepTime.Seconds > 0)
             {
                 await ctx.RespondAsync(":warning: Seconds will not be taken in account!");
-                sleepTime = sleepTime.Subtract(new TimeSpan(0,
-                    0,
-                    sleepTime.Seconds));
-                wakeTime = wakeTime.Subtract(new TimeSpan(0,
-                    0,
-                    wakeTime.Seconds));
+                sleepTime = sleepTime.KeepHoursMinutes();
+                wakeTime = wakeTime.KeepHoursMinutes();
             }
 
             InteractivityExtension interactivity = ctx.Client.GetInteractivity();
@@ -216,6 +212,7 @@ namespace WaterBot.Commands
                 SleepTime = sleepTime - utcOffset,
                 UtcOffset = utcOffset,
                 UserId = ctx.User.Id,
+                GuildId = ctx.Guild.Id,
                 AmountPerDay = amountPerDay,
                 ReminderEnabled = true
             };
@@ -223,19 +220,22 @@ namespace WaterBot.Commands
             userData.RemindersList = UserData.CalculateReminders(userData)
                 .ToList();
 
+            TimeSpan utc = DateTime.UtcNow.TimeOfDay.KeepHoursMinutes();
+            userData.LatestReminder = UserData.CalculateLatestReminder(userData.RemindersList, utc);
+
             UserDataManager.SaveData(userData);
 
             await regionSelection.ModifyAsync(new DiscordEmbedBuilder
             {
                 Color = DiscordColor.Grayple,
                 Title = "Timezone selection",
-                Description = ":white_check_mark: Configuration saved! Thanks you!"
+                Description = ":white_check_mark: Configuration saved! Thank you!"
             }.Build());
             await answer.Result.DeleteAsync();
             await regionSelection.DeleteAllReactionsAsync();
         }
 
-        [Command("show")]
+        [Command("show"), Description("Show your current configuration.")]
         public async Task Show(CommandContext ctx)
         {
             UserData userData = UserDataManager.GetData(ctx.Member);
@@ -266,7 +266,7 @@ namespace WaterBot.Commands
                     true));
         }
 
-        [Command("reminderon")]
+        [Command("reminderon"), Description("Enable your reminders.")]
         public async Task ReminderOn(CommandContext ctx)
         {
             UserData userData = UserDataManager.GetData(ctx.Member);
@@ -276,7 +276,7 @@ namespace WaterBot.Commands
             await ctx.RespondAsync("Your reminder has been turned on!");
         }
 
-        [Command("reminderoff")]
+        [Command("reminderoff"), Description("Disable your reminders.")]
         public async Task ReminderOff(CommandContext ctx)
         {
             UserData userData = UserDataManager.GetData(ctx.Member);
