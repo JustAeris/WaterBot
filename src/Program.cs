@@ -27,7 +27,11 @@ namespace WaterBot
             {
                 Token = DiscordBotConfiguration.Token,
                 TokenType = TokenType.Bot,
+#if DEBUG
                 MinimumLogLevel = LogLevel.Debug,
+#else
+                MinimumLogLevel = LogLevel.Info,
+#endif
                 Intents = DiscordIntents.All
             });
 
