@@ -240,30 +240,41 @@ namespace WaterBot.Commands
         {
             UserData userData = UserDataManager.GetData(ctx.Member);
 
-            await ctx.RespondAsync(new DiscordEmbedBuilder
+            if (userData != null)
+            {
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                    {
+                        Color = DiscordColor.CornflowerBlue
+                    }
+                    .WithAuthor($"{ctx.Member.Username}'s water reminder configuration",
+                        iconUrl: ctx.Member.AvatarUrl)
+                    .AddField("Wake Time",
+                        $"```{userData.WakeTime}```",
+                        true)
+                    .AddField("Sleep Time",
+                        $"```{userData.SleepTime}```",
+                        true)
+                    .AddField("UTC time offset",
+                        $"```{userData.UtcOffset}```",
+                        true)
+                    .AddField("Amount in mL per reminder",
+                        $"```{userData.AmountPerInterval}```",
+                        true)
+                    .AddField("Amount in mL per day",
+                        $"```{userData.AmountPerDay}```",
+                        true)
+                    .AddField("Reminders enabled",
+                        $"```{userData.ReminderEnabled}```",
+                        true));
+            }
+            else
+            {
+                await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
-                    Color = DiscordColor.CornflowerBlue
+                    Color = DiscordColor.Red,
                 }
-                .WithAuthor($"{ctx.Member.Username}'s water reminder configuration",
-                    iconUrl: ctx.Member.AvatarUrl)
-                .AddField("Wake Time",
-                    $"```{userData.WakeTime}```",
-                    true)
-                .AddField("Sleep Time",
-                    $"```{userData.SleepTime}```",
-                    true)
-                .AddField("UTC time offset",
-                    $"```{userData.UtcOffset}```",
-                    true)
-                .AddField("Amount in mL per reminder",
-                    $"```{userData.AmountPerInterval}```",
-                    true)
-                .AddField("Amount in mL per day",
-                    $"```{userData.AmountPerDay}```",
-                    true)
-                .AddField("Reminders enabled",
-                    $"```{userData.ReminderEnabled}```",
-                    true));
+                .AddField("No configuration found!", "For more information, type `wb!help config save`"));
+            }
         }
 
         [Command("reminderon"), Description("Enable your reminders.")]
