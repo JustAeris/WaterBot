@@ -285,5 +285,11 @@ namespace WaterBot.Commands
 
             await ctx.RespondAsync("Your reminder has been turned off!");
         }
+
+        [Command("next"), Description("Show the next reminder for you")]
+        public async Task ShowNextReminder(CommandContext ctx)
+        {
+
+        }
     }
 }
