@@ -300,6 +300,16 @@ namespace WaterBot.Commands
         [Command("next"), Description("Show the next reminder for you")]
         public async Task ShowNextReminder(CommandContext ctx)
         {
+            UserData data = UserDataManager.GetData(ctx.Member);
+            TimeSpan now = DateTime.UtcNow.TimeOfDay.KeepHoursMinutes();
+            TimeSpan nextReminder = data.RemindersList.First(ts => ts > now);
+
+            await ctx.RespondAsync(embed: new DiscordEmbedBuilder
+                {
+                    Description = $"```{nextReminder + data.UtcOffset}```",
+                    Color = DiscordColor.CornflowerBlue
+                }
+                .WithAuthor($"{ctx.Member.Username}'s next reminder is at:", ctx.Member.AvatarUrl));
 
         }
     }
