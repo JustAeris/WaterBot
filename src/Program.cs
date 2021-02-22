@@ -30,7 +30,7 @@ namespace WaterBot
 #if DEBUG
                 MinimumLogLevel = LogLevel.Debug,
 #else
-                MinimumLogLevel = LogLevel.Info,
+                MinimumLogLevel = LogLevel.Information,
 #endif
                 Intents = DiscordIntents.All
             });
