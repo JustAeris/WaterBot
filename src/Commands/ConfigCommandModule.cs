@@ -240,41 +240,41 @@ namespace WaterBot.Commands
         {
             UserData userData = UserDataManager.GetData(ctx.Member);
 
-            if (userData != null)
-            {
-                await ctx.RespondAsync(new DiscordEmbedBuilder
-                    {
-                        Color = DiscordColor.CornflowerBlue
-                    }
-                    .WithAuthor($"{ctx.Member.Username}'s water reminder configuration",
-                        iconUrl: ctx.Member.AvatarUrl)
-                    .AddField("Wake Time",
-                        $"```{userData.WakeTime.Add(userData.UtcOffset)}```",
-                        true)
-                    .AddField("Sleep Time",
-                        $"```{userData.SleepTime.Add(userData.UtcOffset)}```",
-                        true)
-                    .AddField("UTC time offset",
-                        $"```{userData.UtcOffset}```",
-                        true)
-                    .AddField("Amount in mL per reminder",
-                        $"```{userData.AmountPerInterval}```",
-                        true)
-                    .AddField("Amount in mL per day",
-                        $"```{userData.AmountPerDay}```",
-                        true)
-                    .AddField("Reminders enabled",
-                        $"```{userData.ReminderEnabled}```",
-                        true));
-            }
-            else
+            if (userData == null)
             {
                 await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
                     Color = DiscordColor.Red,
-                }
-                .AddField("No configuration found!", "For more information, type `wb!help config save`"));
+                    Title = "No configuration found!",
+                    Description = "For more information, type `wb!help config save`"
+                });
+                return;
             }
+
+            await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Color = DiscordColor.CornflowerBlue
+                }
+                .WithAuthor($"{ctx.Member.Username}'s water reminder configuration",
+                    iconUrl: ctx.Member.AvatarUrl)
+                .AddField("Wake Time",
+                    $"```{userData.WakeTime.Add(userData.UtcOffset)}```",
+                    true)
+                .AddField("Sleep Time",
+                    $"```{userData.SleepTime.Add(userData.UtcOffset)}```",
+                    true)
+                .AddField("UTC time offset",
+                    $"```{userData.UtcOffset}```",
+                    true)
+                .AddField("Amount in mL per reminder",
+                    $"```{userData.AmountPerInterval}```",
+                    true)
+                .AddField("Amount in mL per day",
+                    $"```{userData.AmountPerDay}```",
+                    true)
+                .AddField("Reminders enabled",
+                    $"```{userData.ReminderEnabled}```",
+                    true));
         }
 
         [Command("reminderon"), Description("Enable your reminders.")]
