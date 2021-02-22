@@ -20,11 +20,10 @@ using WaterBot.Http.WorldTimeAPI;
 
 namespace WaterBot.Commands
 {
-    [Group("config")]
     // ReSharper disable once ClassNeverInstantiated.Global
     public class ConfigCommandModule : BaseCommandModule
     {
-        [Command("save"), Description("Allows you to save a reminder configuration.")]
+        [Command("setup"), Description("Allows you to save a reminder configuration.")]
         public async Task Save(CommandContext ctx,
             [Description("Time you usually wake up. Example: 8h")] TimeSpan wakeTime,
             [Description("Time you usually sleep. Example: 22h")] TimeSpan sleepTime,
