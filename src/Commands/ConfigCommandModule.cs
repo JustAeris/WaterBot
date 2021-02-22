@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
@@ -281,20 +282,44 @@ namespace WaterBot.Commands
         public async Task ReminderOn(CommandContext ctx)
         {
             UserData userData = UserDataManager.GetData(ctx.Member);
+
+            if (userData == null)
+            {
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Color = DiscordColor.Red,
+                    Title = "No configuration found!",
+                    Description = "For more information, type `wb!help config save`"
+                });
+            }
+
+            Debug.Assert(userData != null, nameof(userData) + " != null");
             userData.ReminderEnabled = true;
             UserDataManager.SaveData(userData);
 
-            await ctx.RespondAsync("Your reminder has been turned on!");
+            await ctx.RespondAsync("Your reminders has been turned on!");
         }
 
         [Command("reminderoff"), Description("Disable your reminders.")]
         public async Task ReminderOff(CommandContext ctx)
         {
             UserData userData = UserDataManager.GetData(ctx.Member);
+
+            if (userData == null)
+            {
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                    {
+                        Color = DiscordColor.Red,
+                        Title = "No configuration found!",
+                        Description = "For more information, type `wb!help config save`"
+                    });
+            }
+
+            Debug.Assert(userData != null, nameof(userData) + " != null");
             userData.ReminderEnabled = false;
             UserDataManager.SaveData(userData);
 
-            await ctx.RespondAsync("Your reminder has been turned off!");
+            await ctx.RespondAsync("Your reminders has been turned off!");
         }
 
         [Command("next"), Description("Show the next reminder for you")]
