@@ -249,10 +249,10 @@ namespace WaterBot.Commands
                     .WithAuthor($"{ctx.Member.Username}'s water reminder configuration",
                         iconUrl: ctx.Member.AvatarUrl)
                     .AddField("Wake Time",
-                        $"```{userData.WakeTime}```",
+                        $"```{userData.WakeTime.Add(userData.UtcOffset)}```",
                         true)
                     .AddField("Sleep Time",
-                        $"```{userData.SleepTime}```",
+                        $"```{userData.SleepTime.Add(userData.UtcOffset)}```",
                         true)
                     .AddField("UTC time offset",
                         $"```{userData.UtcOffset}```",
