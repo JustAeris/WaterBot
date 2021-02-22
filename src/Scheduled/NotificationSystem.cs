@@ -38,6 +38,7 @@ namespace WaterBot.Scheduled
                 foreach (UserData data in enumerable)
                 {
                     if (!data.ReminderEnabled) continue;
+                    if (now < data.WakeTime && now > data.SleepTime) continue;
 
                     try
                     {
@@ -52,14 +53,15 @@ namespace WaterBot.Scheduled
                                 $"Hey! it's time to drink {data.AmountPerInterval}mL of water to stay hydrated! :droplet:");
                                 data.LatestReminder = UserData.CalculateLatestReminder(data.RemindersList, now);
                                 UserDataManager.SaveData(data);
+                                break;
                             }
-                            else if (timeSpan == data.RemindersList.First() && data.LatestReminder == data.RemindersList.Last() && timeSpan < now && timeSpan < data.LatestReminder)
-                            {
-                                await user.SendMessageAsync(
-                                    $"Hey! it's time to drink {data.AmountPerInterval}mL of water to stay hydrated! :droplet:");
-                                data.LatestReminder = UserData.CalculateLatestReminder(data.RemindersList, now);
-                                UserDataManager.SaveData(data);
-                            }
+
+                            if (timeSpan != data.RemindersList.First() || data.LatestReminder != data.RemindersList.Last() || timeSpan >= now || timeSpan >= data.LatestReminder) continue;
+                            await user.SendMessageAsync(
+                                $"Hey! it's time to drink {data.AmountPerInterval}mL of water to stay hydrated! :droplet:");
+                            data.LatestReminder = UserData.CalculateLatestReminder(data.RemindersList, now);
+                            UserDataManager.SaveData(data);
+                            break;
                         }
                     }
                     catch (Exception exception)
