@@ -56,14 +56,13 @@ namespace WaterBot.Scheduled
                                 break;
                             }
 
-                            if (timeSpan == data.RemindersList.First() && data.LatestReminder == data.RemindersList.Last() && timeSpan < now && now < data.LatestReminder)
-                            {
-                                await user.SendMessageAsync(
-                                    $"Hey! it's time to drink {data.AmountPerInterval}mL of water to stay hydrated! :droplet:");
-                                data.LatestReminder = UserData.CalculateLatestReminder(data.RemindersList, now);
-                                UserDataManager.SaveData(data);
-                                break;
-                            }
+                            if (timeSpan != data.RemindersList.First() || data.LatestReminder != data.RemindersList.Last() || timeSpan >= now || now >= data.LatestReminder) continue;
+
+                            await user.SendMessageAsync(
+                                $"Hey! it's time to drink {data.AmountPerInterval}mL of water to stay hydrated! :droplet:");
+                            data.LatestReminder = UserData.CalculateLatestReminder(data.RemindersList, now);
+                            UserDataManager.SaveData(data);
+                            break;
                         }
                     }
                     catch (Exception exception)
