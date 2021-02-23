@@ -1,6 +1,4 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -8,13 +6,11 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using WaterBot.Data;
 using WaterBot.Http.WorldTimeAPI;
-
-#endregion
+using System.Globalization;
 
 // ReSharper disable UnusedMember.Global
 
@@ -71,31 +67,12 @@ namespace WaterBot.Commands
                     Description = "Choose the region you're in:"
                 }
                 .AddField("Available regions:",
-                    ":one: Africa\n:two: America\n:three: Antarctica\n:four: Asia\n:five: Atlantic\n:six: Australia\n:seven: Europe\n:eight: Indian\n:nine: Pacific")
-                .WithFooter("Use reactions below to make your choice."));
+                    "Africa\nAmerica\nAntarctica\nAsia\nAtlantic\nAustralia\nEurope\nIndian\nPacific")
+                .WithFooter("Answer with the name of your corresponding region."));
 
-            await regionSelection.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client,
-                ":one:"));
-            await regionSelection.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client,
-                ":two:"));
-            await regionSelection.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client,
-                ":three:"));
-            await regionSelection.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client,
-                ":four:"));
-            await regionSelection.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client,
-                ":five:"));
-            await regionSelection.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client,
-                ":six:"));
-            await regionSelection.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client,
-                ":seven:"));
-            await regionSelection.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client,
-                ":eight:"));
-            await regionSelection.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client,
-                ":nine:"));
 
-            InteractivityResult<MessageReactionAddEventArgs> result =
-                await interactivity.WaitForReactionAsync(regionSelection,
-                    ctx.User);
+            InteractivityResult<DiscordMessage> result =
+                await interactivity.WaitForMessageAsync(message => message.Author == ctx.Member);
 
             if (result.TimedOut)
             {
@@ -109,19 +86,10 @@ namespace WaterBot.Commands
                 return;
             }
 
-            string selectedRegion = result.Result.Emoji.GetDiscordName() switch
-            {
-                ":one:" => "Africa",
-                ":two:" => "America",
-                ":three:" => "Antarctica",
-                ":four:" => "Asia",
-                ":five:" => "Atlantic",
-                ":six:" => "Australia",
-                ":seven:" => "Europe",
-                ":eight:" => "Indian",
-                ":nine:" => "Pacific",
-                _ => ""
-            };
+            TextInfo ti = CultureInfo.InvariantCulture.TextInfo;
+            string selectedRegion = ti.ToTitleCase(result.Result.Content);
+
+            await result.Result.DeleteAsync();
 
             if (string.IsNullOrWhiteSpace(selectedRegion))
             {
@@ -132,7 +100,22 @@ namespace WaterBot.Commands
 
             using WorldTimeApiClient api = new WorldTimeApiClient();
 
-            List<string> regions = (List<string>) await api.GetRegions(selectedRegion);
+            List<string> regions;
+            try
+            {
+                regions = (List<string>) await api.GetRegions(selectedRegion);
+            }
+            catch (Exception)
+            {
+                await regionSelection.ModifyAsync(new DiscordEmbedBuilder
+                {
+                    Color = DiscordColor.Grayple,
+                    Title = "Timezone selection",
+                    Description = "Incorrect selection! Please run the command again."
+                }.Build());
+                await regionSelection.DeleteAllReactionsAsync();
+                return;
+            }
 
             string regionsList = regions.Aggregate("",
                 (current,
@@ -183,13 +166,13 @@ namespace WaterBot.Commands
                 return;
             }
 
-            string selectedCity = answer.Result.Content;
+            string selectedCity = ti.ToTitleCase(answer.Result.Content);
 
             TimeZoneResponse timeZone;
             try
             {
                 timeZone = await api.GetTimeZone(
-                        $"{selectedRegion}/{selectedCity.Replace(selectedCity[0], char.ToUpper(selectedCity[0]))}");
+                        $"{selectedRegion}/{selectedCity}");
             }
             catch (Exception)
             {
