@@ -10,7 +10,8 @@ of water you should drink per notification.
 
 It will then notify you every N amount of time reminding you to drink water and how much.
 
-Feel free to use the link here to invite the bot to your own server.
+Feel free to use the link [here](https://discord.com/api/oauth2/authorize?client_id=812090297643302942&permissions=10240&scope=bot)
+to invite the bot to your own server.
 
 ## Development
 If you want to get to work on this bot, follow the steps below. But first, make sure your system
