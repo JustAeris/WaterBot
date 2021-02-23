@@ -348,7 +348,7 @@ namespace WaterBot.Commands
                     Description = $"```{nextReminder + data.UtcOffset}```",
                     Color = DiscordColor.CornflowerBlue
                 }
-                .WithAuthor($"{ctx.Member.Username}'s next reminder is at:", ctx.Member.AvatarUrl));
+                .WithAuthor($"{ctx.Member.Username}'s next reminder is at:", iconUrl: ctx.Member.AvatarUrl));
 
         }
     }
