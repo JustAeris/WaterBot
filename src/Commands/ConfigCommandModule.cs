@@ -1,29 +1,25 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using WaterBot.Data;
 using WaterBot.Http.WorldTimeAPI;
-
-#endregion
+using System.Globalization;
 
 // ReSharper disable UnusedMember.Global
 
 namespace WaterBot.Commands
 {
-    [Group("config")]
     // ReSharper disable once ClassNeverInstantiated.Global
     public class ConfigCommandModule : BaseCommandModule
     {
-        [Command("save"), Description("Allows you to save a reminder configuration.")]
+        [Command("setup"), Description("Allows you to save a reminder configuration.")]
         public async Task Save(CommandContext ctx,
             [Description("Time you usually wake up. Example: 8h")] TimeSpan wakeTime,
             [Description("Time you usually sleep. Example: 22h")] TimeSpan sleepTime,
@@ -62,6 +58,38 @@ namespace WaterBot.Commands
                 wakeTime = wakeTime.KeepHoursMinutes();
             }
 
+            UserData data = UserDataManager.GetData(ctx.Member);
+            if (data?.UtcOffset != null)
+            {
+                UserData userDataNoTz = new UserData
+                {
+                    AmountPerInterval = amountPerInterval,
+                    WakeTime = wakeTime - data.UtcOffset,
+                    SleepTime = sleepTime - data.UtcOffset,
+                    UtcOffset = data.UtcOffset,
+                    UserId = ctx.User.Id,
+                    GuildId = ctx.Guild.Id,
+                    AmountPerDay = amountPerDay,
+                    ReminderEnabled = true
+                };
+
+                userDataNoTz.RemindersList = UserData.CalculateReminders(userDataNoTz)
+                    .ToList();
+
+                TimeSpan utcNoTz = DateTime.UtcNow.TimeOfDay.KeepHoursMinutes();
+                userDataNoTz.LatestReminder = UserData.CalculateLatestReminder(userDataNoTz.RemindersList, utcNoTz);
+
+                UserDataManager.SaveData(userDataNoTz);
+
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Color = DiscordColor.Grayple,
+                    Title = "Water Bot",
+                    Description = ":white_check_mark: Configuration saved! Thank you!"
+                });
+                return;
+            }
+
             InteractivityExtension interactivity = ctx.Client.GetInteractivity();
 
             DiscordMessage regionSelection = await ctx.RespondAsync(new DiscordEmbedBuilder
@@ -71,31 +99,12 @@ namespace WaterBot.Commands
                     Description = "Choose the region you're in:"
                 }
                 .AddField("Available regions:",
-                    ":one: Africa\n:two: America\n:three: Antarctica\n:four: Asia\n:five: Atlantic\n:six: Australia\n:seven: Europe\n:eight: Indian\n:nine: Pacific")
-                .WithFooter("Use reactions below to make your choice."));
+                    "Africa\nAmerica\nAntarctica\nAsia\nAtlantic\nAustralia\nEurope\nIndian\nPacific")
+                .WithFooter("Answer with the name of your corresponding region."));
 
-            await regionSelection.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client,
-                ":one:"));
-            await regionSelection.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client,
-                ":two:"));
-            await regionSelection.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client,
-                ":three:"));
-            await regionSelection.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client,
-                ":four:"));
-            await regionSelection.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client,
-                ":five:"));
-            await regionSelection.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client,
-                ":six:"));
-            await regionSelection.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client,
-                ":seven:"));
-            await regionSelection.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client,
-                ":eight:"));
-            await regionSelection.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client,
-                ":nine:"));
 
-            InteractivityResult<MessageReactionAddEventArgs> result =
-                await interactivity.WaitForReactionAsync(regionSelection,
-                    ctx.User);
+            InteractivityResult<DiscordMessage> result =
+                await interactivity.WaitForMessageAsync(message => message.Author == ctx.Member);
 
             if (result.TimedOut)
             {
@@ -109,19 +118,10 @@ namespace WaterBot.Commands
                 return;
             }
 
-            string selectedRegion = result.Result.Emoji.GetDiscordName() switch
-            {
-                ":one:" => "Africa",
-                ":two:" => "America",
-                ":three:" => "Antarctica",
-                ":four:" => "Asia",
-                ":five:" => "Atlantic",
-                ":six:" => "Australia",
-                ":seven:" => "Europe",
-                ":eight:" => "Indian",
-                ":nine:" => "Pacific",
-                _ => ""
-            };
+            TextInfo ti = CultureInfo.InvariantCulture.TextInfo;
+            string selectedRegion = ti.ToTitleCase(result.Result.Content);
+
+            await result.Result.DeleteAsync();
 
             if (string.IsNullOrWhiteSpace(selectedRegion))
             {
@@ -132,7 +132,22 @@ namespace WaterBot.Commands
 
             using WorldTimeApiClient api = new WorldTimeApiClient();
 
-            List<string> regions = (List<string>) await api.GetRegions(selectedRegion);
+            List<string> regions;
+            try
+            {
+                regions = (List<string>) await api.GetRegions(selectedRegion);
+            }
+            catch (Exception)
+            {
+                await regionSelection.ModifyAsync(new DiscordEmbedBuilder
+                {
+                    Color = DiscordColor.Grayple,
+                    Title = "Timezone selection",
+                    Description = "Incorrect selection! Please run the command again."
+                }.Build());
+                await regionSelection.DeleteAllReactionsAsync();
+                return;
+            }
 
             string regionsList = regions.Aggregate("",
                 (current,
@@ -183,13 +198,13 @@ namespace WaterBot.Commands
                 return;
             }
 
-            string selectedCity = answer.Result.Content;
+            string selectedCity = ti.ToTitleCase(answer.Result.Content);
 
             TimeZoneResponse timeZone;
             try
             {
                 timeZone = await api.GetTimeZone(
-                        $"{selectedRegion}/{selectedCity.Replace(selectedCity[0], char.ToUpper(selectedCity[0]))}");
+                        $"{selectedRegion}/{selectedCity}");
             }
             catch (Exception)
             {
@@ -240,61 +255,101 @@ namespace WaterBot.Commands
         {
             UserData userData = UserDataManager.GetData(ctx.Member);
 
-            if (userData != null)
-            {
-                await ctx.RespondAsync(new DiscordEmbedBuilder
-                    {
-                        Color = DiscordColor.CornflowerBlue
-                    }
-                    .WithAuthor($"{ctx.Member.Username}'s water reminder configuration",
-                        iconUrl: ctx.Member.AvatarUrl)
-                    .AddField("Wake Time",
-                        $"```{userData.WakeTime.Add(userData.UtcOffset)}```",
-                        true)
-                    .AddField("Sleep Time",
-                        $"```{userData.SleepTime.Add(userData.UtcOffset)}```",
-                        true)
-                    .AddField("UTC time offset",
-                        $"```{userData.UtcOffset}```",
-                        true)
-                    .AddField("Amount in mL per reminder",
-                        $"```{userData.AmountPerInterval}```",
-                        true)
-                    .AddField("Amount in mL per day",
-                        $"```{userData.AmountPerDay}```",
-                        true)
-                    .AddField("Reminders enabled",
-                        $"```{userData.ReminderEnabled}```",
-                        true));
-            }
-            else
+            if (userData == null)
             {
                 await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
                     Color = DiscordColor.Red,
-                }
-                .AddField("No configuration found!", "For more information, type `wb!help config save`"));
+                    Title = "No configuration found!",
+                    Description = "For more information, type `wb!help config save`"
+                });
+                return;
             }
+
+            await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Color = DiscordColor.CornflowerBlue
+                }
+                .WithAuthor($"{ctx.Member.Username}'s water reminder configuration",
+                    iconUrl: ctx.Member.AvatarUrl)
+                .AddField("Wake Time",
+                    $"```{userData.WakeTime.Add(userData.UtcOffset)}```",
+                    true)
+                .AddField("Sleep Time",
+                    $"```{userData.SleepTime.Add(userData.UtcOffset)}```",
+                    true)
+                .AddField("UTC time offset",
+                    $"```{userData.UtcOffset}```",
+                    true)
+                .AddField("Amount in mL per reminder",
+                    $"```{userData.AmountPerInterval}```",
+                    true)
+                .AddField("Amount in mL per day",
+                    $"```{userData.AmountPerDay}```",
+                    true)
+                .AddField("Reminders enabled",
+                    $"```{userData.ReminderEnabled}```",
+                    true));
         }
 
         [Command("reminderon"), Description("Enable your reminders.")]
         public async Task ReminderOn(CommandContext ctx)
         {
             UserData userData = UserDataManager.GetData(ctx.Member);
+
+            if (userData == null)
+            {
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Color = DiscordColor.Red,
+                    Title = "No configuration found!",
+                    Description = "For more information, type `wb!help config save`"
+                });
+            }
+
+            Debug.Assert(userData != null, nameof(userData) + " != null");
             userData.ReminderEnabled = true;
             UserDataManager.SaveData(userData);
 
-            await ctx.RespondAsync("Your reminder has been turned on!");
+            await ctx.RespondAsync("Your reminders has been turned on!");
         }
 
         [Command("reminderoff"), Description("Disable your reminders.")]
         public async Task ReminderOff(CommandContext ctx)
         {
             UserData userData = UserDataManager.GetData(ctx.Member);
+
+            if (userData == null)
+            {
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                    {
+                        Color = DiscordColor.Red,
+                        Title = "No configuration found!",
+                        Description = "For more information, type `wb!help config save`"
+                    });
+            }
+
+            Debug.Assert(userData != null, nameof(userData) + " != null");
             userData.ReminderEnabled = false;
             UserDataManager.SaveData(userData);
 
-            await ctx.RespondAsync("Your reminder has been turned off!");
+            await ctx.RespondAsync("Your reminders has been turned off!");
+        }
+
+        [Command("next"), Description("Show the next reminder for you")]
+        public async Task ShowNextReminder(CommandContext ctx)
+        {
+            UserData data = UserDataManager.GetData(ctx.Member);
+            TimeSpan now = DateTime.UtcNow.TimeOfDay.KeepHoursMinutes();
+            TimeSpan nextReminder = data.RemindersList.First(ts => ts > now);
+
+            await ctx.RespondAsync(embed: new DiscordEmbedBuilder
+                {
+                    Description = $"```{nextReminder + data.UtcOffset}```",
+                    Color = DiscordColor.CornflowerBlue
+                }
+                .WithAuthor($"{ctx.Member.Username}'s next reminder is at:", ctx.Member.AvatarUrl));
+
         }
     }
 }
