@@ -58,6 +58,38 @@ namespace WaterBot.Commands
                 wakeTime = wakeTime.KeepHoursMinutes();
             }
 
+            UserData data = UserDataManager.GetData(ctx.Member);
+            if (data?.UtcOffset != null)
+            {
+                UserData userDataNoTz = new UserData
+                {
+                    AmountPerInterval = amountPerInterval,
+                    WakeTime = wakeTime - data.UtcOffset,
+                    SleepTime = sleepTime - data.UtcOffset,
+                    UtcOffset = data.UtcOffset,
+                    UserId = ctx.User.Id,
+                    GuildId = ctx.Guild.Id,
+                    AmountPerDay = amountPerDay,
+                    ReminderEnabled = true
+                };
+
+                userDataNoTz.RemindersList = UserData.CalculateReminders(userDataNoTz)
+                    .ToList();
+
+                TimeSpan utcNoTz = DateTime.UtcNow.TimeOfDay.KeepHoursMinutes();
+                userDataNoTz.LatestReminder = UserData.CalculateLatestReminder(userDataNoTz.RemindersList, utcNoTz);
+
+                UserDataManager.SaveData(userDataNoTz);
+
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Color = DiscordColor.Grayple,
+                    Title = "Water Bot",
+                    Description = ":white_check_mark: Configuration saved! Thank you!"
+                });
+                return;
+            }
+
             InteractivityExtension interactivity = ctx.Client.GetInteractivity();
 
             DiscordMessage regionSelection = await ctx.RespondAsync(new DiscordEmbedBuilder
