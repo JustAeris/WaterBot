@@ -2,11 +2,13 @@
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.Extensions;
 using Microsoft.Extensions.Logging;
 using WaterBot.Commands;
+using WaterBot.Data;
 using WaterBot.Discord;
 using WaterBot.Scheduled;
 
@@ -56,7 +58,12 @@ namespace WaterBot
             NotificationSystem dm = new NotificationSystem(_client);
             dm.Start();
 
-            await _client.ConnectAsync();
+            await _client.ConnectAsync(new DiscordActivity()
+            {
+                Name = "your health",
+                ActivityType = ActivityType.Watching,
+            });
+
             await Task.Delay(-1);
         }
     }
