@@ -347,7 +347,9 @@ namespace WaterBot.Commands
         {
             UserData data = UserDataManager.GetData(ctx.Member);
             TimeSpan now = DateTime.UtcNow.TimeOfDay.KeepHoursMinutes();
-            TimeSpan nextReminder = data.RemindersList.First(ts => ts > now);
+
+            TimeSpan nextReminder = (now > data.RemindersList.Last() ? data.RemindersList.First()
+                : data.RemindersList.First(ts => ts > now));
 
             await ctx.RespondAsync(embed: new DiscordEmbedBuilder
                 {
