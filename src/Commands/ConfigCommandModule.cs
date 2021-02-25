@@ -353,10 +353,10 @@ namespace WaterBot.Commands
 
             await ctx.RespondAsync(embed: new DiscordEmbedBuilder
                 {
-                    Description = $"```{nextReminder + data.UtcOffset}{(nextReminder == data.RemindersList.Last() ? $"\n{_dropletWarning} You have no reminders left for today.": null)}```",
+                    Description = $"```{nextReminder + data.UtcOffset}```{(nextReminder < now ? $"\n{_dropletWarning} You have no reminders left for today.": null)}",
                     Color = DiscordColor.CornflowerBlue
                 }
-                .WithAuthor($"{ctx.Member.Username}'s next {_dropletMain} reminder is at:", iconUrl: ctx.Member.AvatarUrl));
+                .WithAuthor($"{ctx.Member.Username}'s next reminder is at:", iconUrl: ctx.Member.AvatarUrl));
 
         }
     }
