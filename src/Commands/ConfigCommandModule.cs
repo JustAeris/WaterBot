@@ -10,6 +10,7 @@ using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using WaterBot.Data;
 using WaterBot.Http.WorldTimeAPI;
+using WaterBot.Discord;
 using System.Globalization;
 
 // ReSharper disable UnusedMember.Global
@@ -19,6 +20,11 @@ namespace WaterBot.Commands
     // ReSharper disable once ClassNeverInstantiated.Global
     public class ConfigCommandModule : BaseCommandModule
     {
+        private readonly string _dropletMain =  DiscordBotConfiguration.UseCustomEmojis ? DiscordBotConfiguration.CustomEmojis.DropletMain : ":droplet:";
+        private readonly string _dropletCheck =  DiscordBotConfiguration.UseCustomEmojis ? DiscordBotConfiguration.CustomEmojis.DropletCheck : ":white_check_mark:";
+        private readonly string _dropletCross =  DiscordBotConfiguration.UseCustomEmojis ? DiscordBotConfiguration.CustomEmojis.DropletCross : ":x:";
+        private readonly string _dropletWarning =  DiscordBotConfiguration.UseCustomEmojis ? DiscordBotConfiguration.CustomEmojis.DropletWarning : ":warning:";
+
         [Command("setup"), Description("Allows you to save a reminder configuration.")]
         public async Task Save(CommandContext ctx,
             [Description("Time you usually wake up. Example: 8h")] TimeSpan wakeTime,
@@ -35,25 +41,25 @@ namespace WaterBot.Commands
                     0,
                     0))
             {
-                await ctx.RespondAsync("You cannot set a wake/sleep time higher than 24h!");
+                await ctx.RespondAsync($"{_dropletCross} You cannot set a wake/sleep time higher than 24h!");
                 return;
             }
 
             if (wakeTime > sleepTime)
             {
-                await ctx.RespondAsync("You cannot set a wake time higher than the sleep time!");
+                await ctx.RespondAsync($"{_dropletCross} You cannot set a wake time higher than the sleep time!");
                 return;
             }
 
             if (amountPerInterval > amountPerDay)
             {
-                await ctx.RespondAsync("The amount per interval cannot be higher than the amount per day!");
+                await ctx.RespondAsync($"{_dropletCross} The amount per interval cannot be higher than the amount per day!");
                 return;
             }
 
             if (wakeTime.Seconds > 0 || sleepTime.Seconds > 0)
             {
-                await ctx.RespondAsync(":warning: Seconds will not be taken in account!");
+                await ctx.RespondAsync($"{_dropletWarning} Seconds will not be taken in account!");
                 sleepTime = sleepTime.KeepHoursMinutes();
                 wakeTime = wakeTime.KeepHoursMinutes();
             }
@@ -84,8 +90,8 @@ namespace WaterBot.Commands
                 await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
                     Color = DiscordColor.Grayple,
-                    Title = "Water Bot",
-                    Description = ":white_check_mark: Configuration saved! Thank you!"
+                    Title = $"{_dropletMain} Water Bot",
+                    Description = $"{_dropletCheck} Configuration saved! Thank you!"
                 });
                 return;
             }
@@ -95,7 +101,7 @@ namespace WaterBot.Commands
             DiscordMessage regionSelection = await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
                     Color = DiscordColor.CornflowerBlue,
-                    Title = "Timezone selection",
+                    Title = $"{_dropletMain} Timezone selection",
                     Description = "Choose the region you're in:"
                 }
                 .AddField("Available regions:",
@@ -111,8 +117,8 @@ namespace WaterBot.Commands
                 await regionSelection.ModifyAsync(new DiscordEmbedBuilder
                 {
                     Color = DiscordColor.Grayple,
-                    Title = "Timezone selection",
-                    Description = ":x: Timed out!"
+                    Title = $"{_dropletMain} Timezone selection",
+                    Description = $"{_dropletCross} Timed out!"
                 }.Build());
                 await regionSelection.DeleteAllReactionsAsync();
                 return;
@@ -142,7 +148,7 @@ namespace WaterBot.Commands
                 await regionSelection.ModifyAsync(new DiscordEmbedBuilder
                 {
                     Color = DiscordColor.Grayple,
-                    Title = "Timezone selection",
+                    Title = $"{_dropletMain} Timezone selection",
                     Description = "Incorrect selection! Please run the command again."
                 }.Build());
                 await regionSelection.DeleteAllReactionsAsync();
@@ -161,7 +167,7 @@ namespace WaterBot.Commands
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder
                 {
                     Color = DiscordColor.CornflowerBlue,
-                    Title = "Timezone selection",
+                    Title =  $"{_dropletMain} Timezone selection",
                     Description = "Choose the region you're in:"
                 }
                 .WithFooter("Answer with the name of the city corresponding to your region.");
@@ -191,8 +197,8 @@ namespace WaterBot.Commands
                 await regionSelection.ModifyAsync(new DiscordEmbedBuilder
                 {
                     Color = DiscordColor.Grayple,
-                    Title = "Timezone selection",
-                    Description = ":x: Timed out!"
+                    Title = $"{_dropletMain} Timezone selection",
+                    Description = $"{_dropletCross} Timed out!"
                 }.Build());
                 await regionSelection.DeleteAllReactionsAsync();
                 return;
@@ -211,8 +217,8 @@ namespace WaterBot.Commands
                 await regionSelection.ModifyAsync(new DiscordEmbedBuilder
                 {
                     Color = DiscordColor.Grayple,
-                    Title = "Timezone selection",
-                    Description = "Incorrect selection! Please run the command again."
+                    Title = $"{_dropletMain} Timezone selection",
+                    Description = $"{_dropletCross} Incorrect selection! Please run the command again."
                 }.Build());
                 await regionSelection.DeleteAllReactionsAsync();
                 return;
@@ -243,8 +249,8 @@ namespace WaterBot.Commands
             await regionSelection.ModifyAsync(new DiscordEmbedBuilder
             {
                 Color = DiscordColor.Grayple,
-                Title = "Timezone selection",
-                Description = ":white_check_mark: Configuration saved! Thank you!"
+                Title = $"{_dropletMain} Timezone selection",
+                Description = $"{_dropletCheck} Configuration saved! Thank you!"
             }.Build());
             await answer.Result.DeleteAsync();
             await regionSelection.DeleteAllReactionsAsync();
@@ -260,8 +266,8 @@ namespace WaterBot.Commands
                 await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
                     Color = DiscordColor.Red,
-                    Title = "No configuration found!",
-                    Description = "For more information, type `wb!help config save`"
+                    Title = $"{_dropletMain} No configuration found!",
+                    Description = $"{_dropletCross} For more information, type `wb!help setup`"
                 });
                 return;
             }
@@ -270,7 +276,7 @@ namespace WaterBot.Commands
                 {
                     Color = DiscordColor.CornflowerBlue
                 }
-                .WithAuthor($"{ctx.Member.Username}'s water reminder configuration",
+                .WithAuthor($"{ctx.Member.Username}'s {_dropletMain} reminder configuration",
                     iconUrl: ctx.Member.AvatarUrl)
                 .AddField("Wake Time",
                     $"```{userData.WakeTime.Add(userData.UtcOffset)}```",
@@ -292,7 +298,7 @@ namespace WaterBot.Commands
                     true));
         }
 
-        [Command("reminderon"), Description("Enable your reminders.")]
+        [Command("reminderson"), Description("Enable your reminders.")]
         public async Task ReminderOn(CommandContext ctx)
         {
             UserData userData = UserDataManager.GetData(ctx.Member);
@@ -302,8 +308,8 @@ namespace WaterBot.Commands
                 await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
                     Color = DiscordColor.Red,
-                    Title = "No configuration found!",
-                    Description = "For more information, type `wb!help config save`"
+                    Title = $"{_dropletMain} No configuration found!",
+                    Description = $"{_dropletCross} For more information, type `wb!help setup`"
                 });
             }
 
@@ -311,10 +317,10 @@ namespace WaterBot.Commands
             userData.ReminderEnabled = true;
             UserDataManager.SaveData(userData);
 
-            await ctx.RespondAsync("Your reminders has been turned on!");
+            await ctx.RespondAsync($"Your reminders have been turned on! {_dropletCheck}");
         }
 
-        [Command("reminderoff"), Description("Disable your reminders.")]
+        [Command("remindersoff"), Description("Disable your reminders.")]
         public async Task ReminderOff(CommandContext ctx)
         {
             UserData userData = UserDataManager.GetData(ctx.Member);
@@ -324,8 +330,8 @@ namespace WaterBot.Commands
                 await ctx.RespondAsync(new DiscordEmbedBuilder
                     {
                         Color = DiscordColor.Red,
-                        Title = "No configuration found!",
-                        Description = "For more information, type `wb!help config save`"
+                        Title = $"{_dropletMain} No configuration found!",
+                        Description = "For more information, type `wb!help setup`"
                     });
             }
 
@@ -333,7 +339,7 @@ namespace WaterBot.Commands
             userData.ReminderEnabled = false;
             UserDataManager.SaveData(userData);
 
-            await ctx.RespondAsync("Your reminders has been turned off!");
+            await ctx.RespondAsync($"Your reminders have been turned off! {_dropletCross}");
         }
 
         [Command("next"), Description("Show the next reminder for you")]
@@ -345,10 +351,10 @@ namespace WaterBot.Commands
 
             await ctx.RespondAsync(embed: new DiscordEmbedBuilder
                 {
-                    Description = $"```{nextReminder + data.UtcOffset}```",
+                    Description = $"```{nextReminder + data.UtcOffset}{(nextReminder == data.RemindersList.Last() ? $"\n{_dropletWarning} You have no reminders left for today.": null)}```",
                     Color = DiscordColor.CornflowerBlue
                 }
-                .WithAuthor($"{ctx.Member.Username}'s next reminder is at:", iconUrl: ctx.Member.AvatarUrl));
+                .WithAuthor($"{ctx.Member.Username}'s next {_dropletMain} reminder is at:", iconUrl: ctx.Member.AvatarUrl));
 
         }
     }
