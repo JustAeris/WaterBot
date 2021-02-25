@@ -27,7 +27,7 @@ namespace WaterBot
         {
             _client = new DiscordClient(new DiscordConfiguration
             {
-                Token = DiscordBotConfiguration.Token,
+                Token = Configuration.Token,
                 TokenType = TokenType.Bot,
 #if DEBUG
                 MinimumLogLevel = LogLevel.Debug,

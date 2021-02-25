@@ -12,7 +12,7 @@ namespace WaterBot.Data
     {
         static UserDataManager()
         {
-            Directory = DiscordBotConfiguration.DataDir;
+            Directory = Configuration.DataDir;
 
             if (!System.IO.Directory.Exists(Directory))
                 System.IO.Directory.CreateDirectory(Directory);

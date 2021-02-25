@@ -1,4 +1,13 @@
 {
+    "DataDir": "<directory where you want data to be saved>",
     "Token": "<your token here>",
-    "DataDir": "<directory where you want data to be saved>"
+    "CustomEmojis": {
+        "UseCustomEmojis": true,
+        "DropletMain": "<emoji's mention string here>",
+        "DropletCheck": "<emoji's mention string here>",
+        "DropletCross": "<emoji's mention string here>",
+        "DropletTrophy": "<not implemented yet>",
+        "DropletFire": "<not implemented yet>",
+        "DropletWarning": "<emoji's mention string here>"
+    }
 }

@@ -6,6 +6,7 @@ using System.Timers;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using WaterBot.Data;
+using WaterBot.Discord;
 
 namespace WaterBot.Scheduled
 {
@@ -13,6 +14,7 @@ namespace WaterBot.Scheduled
     {
         private readonly Timer _timer;
         private readonly DiscordClient _client;
+        private readonly string _dropletMain =  Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletMain : ":droplet:";
 
         public NotificationSystem(DiscordClient client)
         {
@@ -50,7 +52,7 @@ namespace WaterBot.Scheduled
                             if (timeSpan < now && timeSpan > data.LatestReminder)
                             {
                                 await user.SendMessageAsync(
-                                $"Hey! it's time to drink {data.AmountPerInterval}mL of water to stay hydrated! :droplet:");
+                                $"Hey! it's time to drink {data.AmountPerInterval}mL of water to stay hydrated! {_dropletMain}");
                                 data.LatestReminder = UserData.CalculateLatestReminder(data.RemindersList, now);
                                 UserDataManager.SaveData(data);
                                 break;
@@ -59,7 +61,7 @@ namespace WaterBot.Scheduled
                             if (timeSpan != data.RemindersList.First() || data.LatestReminder != data.RemindersList.Last() || timeSpan >= now || now >= data.LatestReminder) continue;
 
                             await user.SendMessageAsync(
-                                $"Hey! it's time to drink {data.AmountPerInterval}mL of water to stay hydrated! :droplet:");
+                                $"Hey! it's time to drink {data.AmountPerInterval}mL of water to stay hydrated! {_dropletMain}");
                             data.LatestReminder = UserData.CalculateLatestReminder(data.RemindersList, now);
                             UserDataManager.SaveData(data);
                             break;
