@@ -1,4 +1,13 @@
 {
+    "DataDir": "<directory where you want data to be saved>",
     "Token": "<your token here>",
-    "DataDir": "<directory where you want data to be saved>"
+    "CustomEmojis": {
+        "UseCustomEmojis": true,
+        "DropletMain": "<:dropletmain:814098180496556083>",
+        "DropletCheck": "<:dropletcheck:814436943931768832>",
+        "DropletCross": "<:dropletcross:814098180815060992>",
+        "DropletTrophy": "null",
+        "DropletFire": "null",
+        "DropletWarning": "<:dropletwarning:814436944100589570>"
+    }
 }
