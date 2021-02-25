@@ -25,6 +25,10 @@ namespace WaterBot.Data
 
         public TimeSpan LatestReminder { get; set; }
 
+        public int HighStreak { get; set; }
+
+        public int BestHighStreak { get; set; }
+
         public override string ToString()
         {
             return
