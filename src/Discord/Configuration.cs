@@ -3,9 +3,9 @@ using Newtonsoft.Json.Linq;
 
 namespace WaterBot.Discord
 {
-    public static class DiscordBotConfiguration
+    public static class Configuration
     {
-        static DiscordBotConfiguration()
+        static Configuration()
         {
             if (!File.Exists("config.json"))
                 return;
