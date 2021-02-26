@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Timers;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
+using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using WaterBot.Data;
 using WaterBot.Discord;
@@ -56,26 +58,30 @@ namespace WaterBot.Scheduled
                         {
                             if (timeSpan < now && timeSpan > data.LatestReminder)
                             {
-                                var notification = await user.SendMessageAsync(
-                                $"Hey! it's time to drink {data.AmountPerInterval}mL of water to stay hydrated! {_dropletMain}");
+                                DiscordMessage notification = await user.SendMessageAsync(
+                                    $"Hey! it's time to drink {data.AmountPerInterval}mL of water to stay hydrated! {_dropletMain}");
                                 data.LatestReminder = UserData.CalculateLatestReminder(data.RemindersList, now);
                                 UserDataManager.SaveData(data);
                                 _ = Task.Run(async () =>
                                 {
-                                    await notification.CreateReactionAsync(Configuration.UseCustomEmojis ?
-                                        DiscordEmoji.FromGuildEmote(_client, ulong.Parse(Regex.Matches(_dropletCheck, @"[0-9]+", RegexOptions.Compiled).First().Value)) :
-                                        DiscordEmoji.FromName(_client, _dropletCheck, false));
+                                    await notification.CreateReactionAsync(Configuration.UseCustomEmojis
+                                        ? DiscordEmoji.FromGuildEmote(_client,
+                                            ulong.Parse(Regex.Matches(_dropletCheck, @"[0-9]+",
+                                                RegexOptions.Compiled).First().Value))
+                                        : DiscordEmoji.FromName(_client, _dropletCheck, false));
 
-                                    var interactivity = _client.GetInteractivity();
+                                    InteractivityExtension interactivity = _client.GetInteractivity();
 
-                                    var result = await interactivity.WaitForReactionAsync(notification, user,
+                                    InteractivityResult<MessageReactionAddEventArgs> result = await interactivity.WaitForReactionAsync(notification, user,
                                         Configuration.WaterStreakBreakDelay);
 
                                     if (result.TimedOut)
                                     {
                                         if (data.WaterStreak == 0) return;
-                                        await user.SendMessageAsync($":cry: You lost your water-drinking streak.\n{_dropletTrophy} Your best water-drinking streak is {data.BestWaterStreak}!");
+                                        await user.SendMessageAsync(
+                                            $":cry: You lost your water-drinking streak.\n{_dropletTrophy} Your best water-drinking streak is **{data.BestWaterStreak}**!");
                                         data.WaterStreak = 0;
+                                        UserDataManager.SaveData(data);
                                         return;
                                     }
 
@@ -84,35 +90,40 @@ namespace WaterBot.Scheduled
                                         data.BestWaterStreak = data.WaterStreak;
 
                                     if (data.WaterStreak % 10 == 0)
-                                        await user.SendMessageAsync($"{_dropletFire} Keep up drinking water, you're on a {data.WaterStreak} streak!");
+                                        await user.SendMessageAsync(
+                                            $"{_dropletFire} Keep up drinking water, you're on a **{data.WaterStreak}** streak!");
 
                                     UserDataManager.SaveData(data);
                                 });
                                 break;
                             }
 
-                            if (timeSpan == data.RemindersList.First() || data.LatestReminder == data.RemindersList.Last() || timeSpan < now || now < data.LatestReminder)
+                            if (timeSpan == data.RemindersList.First() && data.LatestReminder == data.RemindersList.Last() && timeSpan < now && now < data.LatestReminder)
                             {
-                                var notification = await user.SendMessageAsync(
+                                DiscordMessage notification = await user.SendMessageAsync(
                                     $"Hey! it's time to drink {data.AmountPerInterval}mL of water to stay hydrated! {_dropletMain}");
                                 data.LatestReminder = UserData.CalculateLatestReminder(data.RemindersList, now);
                                 UserDataManager.SaveData(data);
                                 _ = Task.Run(async () =>
                                 {
-                                    await notification.CreateReactionAsync(Configuration.UseCustomEmojis ?
-                                        DiscordEmoji.FromGuildEmote(_client, ulong.Parse(Regex.Matches(_dropletCheck, @"[0-9]+", RegexOptions.Compiled).First().Value)) :
-                                        DiscordEmoji.FromName(_client, _dropletCheck, false));
+                                    await notification.CreateReactionAsync(Configuration.UseCustomEmojis
+                                        ? DiscordEmoji.FromGuildEmote(_client,
+                                            ulong.Parse(Regex.Matches(_dropletCheck, @"[0-9]+",
+                                                RegexOptions.Compiled).First().Value))
+                                        : DiscordEmoji.FromName(_client, _dropletCheck, false));
 
-                                    var interactivity = _client.GetInteractivity();
+                                    InteractivityExtension interactivity = _client.GetInteractivity();
 
-                                    var result = await interactivity.WaitForReactionAsync(notification, user,
+                                    InteractivityResult<MessageReactionAddEventArgs> result = await interactivity.WaitForReactionAsync(notification, user,
                                         Configuration.WaterStreakBreakDelay);
 
                                     if (result.TimedOut)
                                     {
                                         if (data.WaterStreak == 0) return;
-                                        await user.SendMessageAsync($":cry: You lost your water-drinking streak.\n{_dropletTrophy} Your best water-drinking streak is {data.BestWaterStreak}!");
+                                        await user.SendMessageAsync(
+                                            $":cry: You lost your water-drinking streak.\n{_dropletTrophy} Your best water-drinking streak is **{data.BestWaterStreak}**!");
                                         data.WaterStreak = 0;
+                                        UserDataManager.SaveData(data);
                                         return;
                                     }
 
@@ -121,7 +132,8 @@ namespace WaterBot.Scheduled
                                         data.BestWaterStreak = data.WaterStreak;
 
                                     if (data.WaterStreak % 10 == 0)
-                                        await user.SendMessageAsync($"{_dropletFire} Keep up drinking water, you're on a {data.WaterStreak} streak!");
+                                        await user.SendMessageAsync(
+                                            $"{_dropletFire} Keep up drinking water, you're on a **{data.WaterStreak}** streak!");
 
                                     UserDataManager.SaveData(data);
                                 });
