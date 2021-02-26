@@ -9,5 +9,9 @@
         "DropletTrophy": "<not implemented yet>",
         "DropletFire": "<not implemented yet>",
         "DropletWarning": "<emoji's mention string here>"
+    },
+    "WaterStreak": {
+        "Enabled": true,
+        "BreakDelay": "<delay after which a user's water-streak should break if no reactions, use format HH:mm:ss>"
     }
 }

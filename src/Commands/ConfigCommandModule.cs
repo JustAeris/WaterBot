@@ -20,10 +20,12 @@ namespace WaterBot.Commands
     // ReSharper disable once ClassNeverInstantiated.Global
     public class ConfigCommandModule : BaseCommandModule
     {
-        private readonly string _dropletMain =  Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletMain : ":droplet:";
-        private readonly string _dropletCheck =  Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletCheck : ":white_check_mark:";
-        private readonly string _dropletCross =  Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletCross : ":x:";
-        private readonly string _dropletWarning =  Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletWarning : ":warning:";
+        private readonly string _dropletMain = Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletMain : ":droplet:";
+        private readonly string _dropletCheck = Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletCheck : ":white_check_mark:";
+        private readonly string _dropletCross = Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletCross : ":x:";
+        private readonly string _dropletWarning = Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletWarning : ":warning:";
+        private readonly string _dropletTrophy = Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletTrophy : ":trophy:";
+        private readonly string _dropletFire = Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletFire : ":fire:";
 
         [Command("setup"), Description("Allows you to save a reminder configuration.")]
         public async Task Save(CommandContext ctx,
@@ -76,7 +78,9 @@ namespace WaterBot.Commands
                     UserId = ctx.User.Id,
                     GuildId = ctx.Guild.Id,
                     AmountPerDay = amountPerDay,
-                    ReminderEnabled = true
+                    ReminderEnabled = true,
+                    WaterStreak = data.WaterStreak,
+                    BestWaterStreak = data.BestWaterStreak
                 };
 
                 userDataNoTz.RemindersList = UserData.CalculateReminders(userDataNoTz)
@@ -235,7 +239,10 @@ namespace WaterBot.Commands
                 UserId = ctx.User.Id,
                 GuildId = ctx.Guild.Id,
                 AmountPerDay = amountPerDay,
-                ReminderEnabled = true
+                ReminderEnabled = true,
+                // ReSharper disable once PossibleNullReferenceException
+                WaterStreak = data.WaterStreak,
+                BestWaterStreak = data.BestWaterStreak
             };
 
             userData.RemindersList = UserData.CalculateReminders(userData)
@@ -357,7 +364,26 @@ namespace WaterBot.Commands
                     Color = DiscordColor.CornflowerBlue
                 }
                 .WithAuthor($"{ctx.Member.Username}'s next reminder is at:", iconUrl: ctx.Member.AvatarUrl));
+        }
 
+        [Command("waterstreak"), Description("Show your current and best water-drinking streak."), Aliases("streak")]
+        public async Task WaterStreak(CommandContext ctx)
+        {
+            if (!Configuration.WaterStreakEnabled)
+            {
+                await ctx.RespondAsync($"{_dropletCross} Water-drinking streaks are not enabled in bot's settings!");
+                return;
+            }
+
+            UserData data = UserDataManager.GetData(ctx.Member);
+
+            await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Description = $"{(data.WaterStreak == 0 ? "You don't have a current water-drinking streak :frowning:." : $"You have a water-drinking streak of **{data.WaterStreak}**, keep on hydrating! {_dropletFire}")}" +
+                                  $"\n{(data.BestWaterStreak == 0 ? "You don't have a water-drinking streak :frowning2:, you should seriously start hydrating." : $"Your best water-drinking streak is **{data.BestWaterStreak}**, great job! {_dropletTrophy}")}",
+                    Color = DiscordColor.CornflowerBlue
+                }
+                .WithAuthor($"{ctx.Member.Username}'s stats:", iconUrl: ctx.Member.AvatarUrl));
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Newtonsoft.Json.Linq;
 
@@ -17,6 +18,9 @@ namespace WaterBot.Discord
 
             UseCustomEmojis = (bool) content["CustomEmojis"]?["UseCustomEmojis"];
 
+            WaterStreakEnabled = (bool) content["WaterStreak"]?["Enabled"];
+            if (WaterStreakEnabled) WaterStreakBreakDelay = (TimeSpan) content["WaterStreak"]?["BreakDelay"];
+
             if (!UseCustomEmojis) return;
             CustomEmojis.DropletMain = (string) content["CustomEmojis"]?["DropletMain"];
             CustomEmojis.DropletCheck = (string) content["CustomEmojis"]?["DropletCheck"];
@@ -30,6 +34,9 @@ namespace WaterBot.Discord
         public static string DataDir { get; }
 
         public static bool UseCustomEmojis { get; }
+
+        public static bool WaterStreakEnabled { get; set; }
+        public static TimeSpan WaterStreakBreakDelay { get; }
 
         public static class CustomEmojis
         {
