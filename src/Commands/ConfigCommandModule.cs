@@ -369,6 +369,12 @@ namespace WaterBot.Commands
         [Command("waterstreak"), Description("Show your current and best water-drinking streak."), Aliases("streak")]
         public async Task WaterStreak(CommandContext ctx)
         {
+            if (!Configuration.WaterStreakEnabled)
+            {
+                await ctx.RespondAsync($"{_dropletCross} Water-drinking streaks are not enabled in bot's settings!");
+                return;
+            }
+
             UserData data = UserDataManager.GetData(ctx.Member);
 
             await ctx.RespondAsync(new DiscordEmbedBuilder

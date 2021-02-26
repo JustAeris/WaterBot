@@ -62,6 +62,7 @@ namespace WaterBot.Scheduled
                                     $"Hey! it's time to drink {data.AmountPerInterval}mL of water to stay hydrated! {_dropletMain}");
                                 data.LatestReminder = UserData.CalculateLatestReminder(data.RemindersList, now);
                                 UserDataManager.SaveData(data);
+                                if (!Configuration.WaterStreakEnabled) return;
                                 _ = Task.Run(async () =>
                                 {
                                     await notification.CreateReactionAsync(Configuration.UseCustomEmojis
@@ -104,6 +105,7 @@ namespace WaterBot.Scheduled
                                     $"Hey! it's time to drink {data.AmountPerInterval}mL of water to stay hydrated! {_dropletMain}");
                                 data.LatestReminder = UserData.CalculateLatestReminder(data.RemindersList, now);
                                 UserDataManager.SaveData(data);
+                                if (!Configuration.WaterStreakEnabled) return;
                                 _ = Task.Run(async () =>
                                 {
                                     await notification.CreateReactionAsync(Configuration.UseCustomEmojis

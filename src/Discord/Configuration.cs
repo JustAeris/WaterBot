@@ -18,7 +18,8 @@ namespace WaterBot.Discord
 
             UseCustomEmojis = (bool) content["CustomEmojis"]?["UseCustomEmojis"];
 
-            WaterStreakBreakDelay = (TimeSpan) content["WaterStreakBreakDelay"];
+            WaterStreakEnabled = (bool) content["WaterStreak"]?["Enabled"];
+            if (WaterStreakEnabled) WaterStreakBreakDelay = (TimeSpan) content["WaterStreak"]?["BreakDelay"];
 
             if (!UseCustomEmojis) return;
             CustomEmojis.DropletMain = (string) content["CustomEmojis"]?["DropletMain"];
@@ -34,6 +35,7 @@ namespace WaterBot.Discord
 
         public static bool UseCustomEmojis { get; }
 
+        public static bool WaterStreakEnabled { get; set; }
         public static TimeSpan WaterStreakBreakDelay { get; }
 
         public static class CustomEmojis
