@@ -45,7 +45,7 @@ namespace WaterBot.Scheduled
                 foreach (UserData data in enumerable)
                 {
                     if (!data.ReminderEnabled) continue;
-                    if (now < data.WakeTime && now > data.SleepTime) continue;
+                    if (now < data.WakeTime || now > data.SleepTime) continue;
 
                     try
                     {
