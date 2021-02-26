@@ -20,10 +20,10 @@ namespace WaterBot.Commands
     // ReSharper disable once ClassNeverInstantiated.Global
     public class ConfigCommandModule : BaseCommandModule
     {
-        private readonly string _dropletMain =  Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletMain : ":droplet:";
-        private readonly string _dropletCheck =  Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletCheck : ":white_check_mark:";
-        private readonly string _dropletCross =  Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletCross : ":x:";
-        private readonly string _dropletWarning =  Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletWarning : ":warning:";
+        private readonly string _dropletMain = Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletMain : ":droplet:";
+        private readonly string _dropletCheck = Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletCheck : ":white_check_mark:";
+        private readonly string _dropletCross = Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletCross : ":x:";
+        private readonly string _dropletWarning = Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletWarning : ":warning:";
 
         [Command("setup"), Description("Allows you to save a reminder configuration.")]
         public async Task Save(CommandContext ctx,
@@ -76,7 +76,9 @@ namespace WaterBot.Commands
                     UserId = ctx.User.Id,
                     GuildId = ctx.Guild.Id,
                     AmountPerDay = amountPerDay,
-                    ReminderEnabled = true
+                    ReminderEnabled = true,
+                    WaterStreak = data.WaterStreak,
+                    BestWaterStreak = data.BestWaterStreak
                 };
 
                 userDataNoTz.RemindersList = UserData.CalculateReminders(userDataNoTz)
@@ -235,7 +237,10 @@ namespace WaterBot.Commands
                 UserId = ctx.User.Id,
                 GuildId = ctx.Guild.Id,
                 AmountPerDay = amountPerDay,
-                ReminderEnabled = true
+                ReminderEnabled = true,
+                // ReSharper disable once PossibleNullReferenceException
+                WaterStreak = data.WaterStreak,
+                BestWaterStreak = data.BestWaterStreak
             };
 
             userData.RemindersList = UserData.CalculateReminders(userData)
