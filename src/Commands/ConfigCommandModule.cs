@@ -12,6 +12,8 @@ using WaterBot.Data;
 using WaterBot.Http.WorldTimeAPI;
 using WaterBot.Discord;
 using System.Globalization;
+using System.Text;
+using DSharpPlus.Interactivity.Enums;
 
 // ReSharper disable UnusedMember.Global
 
@@ -26,6 +28,9 @@ namespace WaterBot.Commands
         private readonly string _dropletWarning = Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletWarning : ":warning:";
         private readonly string _dropletTrophy = Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletTrophy : ":trophy:";
         private readonly string _dropletFire = Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletFire : ":fire:";
+        private readonly string _dropletGold = Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletGold : ":first_place:";
+        private readonly string _dropletSilver = Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletSilver : ":second_place:";
+        private readonly string _dropletBronze = Configuration.UseCustomEmojis ? Configuration.CustomEmojis.DropletBronze : ":third_place:";
 
         [Command("setup"), Description("Allows you to save a reminder configuration.")]
         public async Task Save(CommandContext ctx,
@@ -384,6 +389,49 @@ namespace WaterBot.Commands
                     Color = DiscordColor.CornflowerBlue
                 }
                 .WithAuthor($"{ctx.Member.Username}'s stats:", iconUrl: ctx.Member.AvatarUrl));
+        }
+
+        [Command("leaderboard"), Description("Show the current leaderboard for this server."), Aliases("lb")]
+        public async Task Leaderboard(CommandContext ctx)
+        {
+            if (!Configuration.WaterStreakEnabled)
+            {
+                await ctx.RespondAsync($"{_dropletCross} Water-drinking streaks are not enabled in bot's settings!");
+                return;
+            }
+            if (!Configuration.EnableLeaderboard)
+            {
+                await ctx.RespondAsync($"{_dropletCross} Leaderboard is not enabled in bot's settings!");
+                return;
+            }
+
+            List<UserData> list = UserDataManager.GetAllUserData().ToList();
+            list = new List<UserData>(list.OrderByDescending(data => data.WaterStreak));
+
+            if (!list.Any())
+            {
+                await ctx.RespondAsync(":no_mouth: Nobody is drinking water! ");
+                return;
+            }
+
+            InteractivityExtension interactivity = ctx.Client.GetInteractivity();
+
+            StringBuilder sb = new StringBuilder();
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i].WaterStreak == 0) continue;
+                DiscordMember member = await ctx.Guild.GetMemberAsync(list[i].UserId);
+                sb.AppendLine($"{i + 1}. " + member.Username + "#" + member.Discriminator + $" with a hydrating streak of **{list[i].WaterStreak}**. " +
+                              $"{i switch { 0 => _dropletGold, 1 => _dropletSilver, 2 => _dropletBronze, _ => null }}");
+            }
+
+            await interactivity.SendPaginatedMessageAsync(ctx.Channel, ctx.User,
+                interactivity.GeneratePagesInEmbed(sb.ToString(), SplitType.Line, new DiscordEmbedBuilder
+                {
+                    Title = "Water streak leaderboard for this server",
+                    Color = DiscordColor.CornflowerBlue
+                }));
         }
     }
 }

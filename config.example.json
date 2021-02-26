@@ -2,16 +2,20 @@
     "DataDir": "<directory where you want data to be saved>",
     "Token": "<your token here>",
     "CustomEmojis": {
-        "UseCustomEmojis": true,
+        "UseCustomEmojis": false,
         "DropletMain": "<emoji's mention string here>",
         "DropletCheck": "<emoji's mention string here>",
         "DropletCross": "<emoji's mention string here>",
-        "DropletTrophy": "<not implemented yet>",
-        "DropletFire": "<not implemented yet>",
-        "DropletWarning": "<emoji's mention string here>"
+        "DropletTrophy": "<emoji's mention string here>",
+        "DropletFire": "<emoji's mention string here>",
+        "DropletWarning": "<emoji's mention string here>",
+        "DropletGold": "<emoji's mention string here>",
+        "DropletSilver": "<emoji's mention string here>",
+        "DropletBronze": "<emoji's mention string here>"
     },
     "WaterStreak": {
         "Enabled": true,
-        "BreakDelay": "<delay after which a user's water-streak should break if no reactions, use format HH:mm:ss>"
+        "BreakDelay": "<delay after which a user's water-streak should break if no reactions, use format HH:mm:ss>",
+        "EnableLeaderboard": true
     }
 }
