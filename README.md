@@ -14,7 +14,7 @@ Follow this link to [invite the bot](https://discord.com/api/oauth2/authorize?cl
 
 ## Development
 If you want to get to work on this bot, follow the steps below. But first, make sure your system
-has [.NET Core 3.1](https://dotnet.microsoft.com/download/dotnet/3.1) installed.
+has [.NET 5.0](https://dotnet.microsoft.com/download/dotnet/5.0) installed.
 
 Now, go ahead and clone the repository.
 ```
