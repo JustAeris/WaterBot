@@ -32,6 +32,15 @@ Open the `config.json` with your favorite text editor and fill in the following 
 - `Token` should be the unique (secret) token for your [application](https://discord.com/developers/applications).
 - `DataDir` is the directory where all your data is saved, e.g. `/var/waterbot/data`.
 
+In order to configure custom emojis, set `UseCustomEmojis` to true. Add the emojis from the `assets` directory to your server.
+
+Fetch the right values for the emojis using the following example.
+
+![Emojis](https://camo.githubusercontent.com/969866b03b1db389245aa44dd3cda12943ab8c5786bfd54f5245ee8f1cbe1e9a/68747470733a2f2f692e696d6775722e636f6d2f3974593733364e2e676966)
+
+To enable submitting your current stream to the global leaderboard, set the option `EnableLeaderboard` to true.
+Keep in mind that streaks also need to be enabled to make this possible.
+
 Now to run the bot, use your IDE or type `dotnet run` in the console.
 
 ## Credits
