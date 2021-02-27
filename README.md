@@ -10,8 +10,7 @@ of water you should drink per notification.
 
 It will then notify you every N amount of time reminding you to drink water and how much.
 
-Feel free to use the link [here](https://discord.com/api/oauth2/authorize?client_id=812090297643302942&permissions=10240&scope=bot)
-to invite the bot to your own server.
+Follow this link to [invite the bot](https://discord.com/api/oauth2/authorize?client_id=812090297643302942&permissions=10240&scope=bot) to your own server.
 
 ## Development
 If you want to get to work on this bot, follow the steps below. But first, make sure your system
@@ -38,7 +37,7 @@ Fetch the right values for the emojis using the following example.
 
 ![Emojis](https://camo.githubusercontent.com/969866b03b1db389245aa44dd3cda12943ab8c5786bfd54f5245ee8f1cbe1e9a/68747470733a2f2f692e696d6775722e636f6d2f3974593733364e2e676966)
 
-To enable submitting your current stream to the global leaderboard, set the option `EnableLeaderboard` to true.
+To enable submitting your members' current streak to the global leaderboard, set the option `EnableLeaderboard` to true.
 Keep in mind that streaks also need to be enabled to make this possible.
 
 Now to run the bot, use your IDE or type `dotnet run` in the console.
