@@ -19,7 +19,11 @@ namespace WaterBot.Discord
             UseCustomEmojis = (bool) content["CustomEmojis"]?["UseCustomEmojis"];
 
             WaterStreakEnabled = (bool) content["WaterStreak"]?["Enabled"];
-            if (WaterStreakEnabled) WaterStreakBreakDelay = (TimeSpan) content["WaterStreak"]?["BreakDelay"];
+            if (WaterStreakEnabled)
+            {
+                WaterStreakBreakDelay = (TimeSpan) content["WaterStreak"]?["BreakDelay"];
+                EnableLeaderboard = (bool) content["WaterStreak"]?["EnableLeaderboard"];
+            }
 
             if (!UseCustomEmojis) return;
             CustomEmojis.DropletMain = (string) content["CustomEmojis"]?["DropletMain"];
@@ -28,6 +32,10 @@ namespace WaterBot.Discord
             CustomEmojis.DropletTrophy = (string) content["CustomEmojis"]?["DropletTrophy"];
             CustomEmojis.DropletFire = (string) content["CustomEmojis"]?["DropletFire"];
             CustomEmojis.DropletWarning = (string) content["CustomEmojis"]?["DropletWarning"];
+            if (!EnableLeaderboard) return;
+            CustomEmojis.DropletGold = (string) content["CustomEmojis"]?["DropletGold"];
+            CustomEmojis.DropletSilver = (string) content["CustomEmojis"]?["DropletSilver"];
+            CustomEmojis.DropletBronze = (string) content["CustomEmojis"]?["DropletBronze"];
         }
 
         public static string Token { get; }
@@ -35,8 +43,9 @@ namespace WaterBot.Discord
 
         public static bool UseCustomEmojis { get; }
 
-        public static bool WaterStreakEnabled { get; set; }
+        public static bool WaterStreakEnabled { get; }
         public static TimeSpan WaterStreakBreakDelay { get; }
+        public static bool EnableLeaderboard { get; }
 
         public static class CustomEmojis
         {
@@ -46,6 +55,10 @@ namespace WaterBot.Discord
             public static string DropletTrophy { get; set; }
             public static string DropletFire { get; set; }
             public static string DropletWarning { get; set; }
+
+            public static string DropletGold { get; set; }
+            public static string DropletSilver { get; set; }
+            public static string DropletBronze { get; set; }
         }
     }
 }
