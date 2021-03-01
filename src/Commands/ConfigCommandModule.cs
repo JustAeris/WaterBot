@@ -434,5 +434,156 @@ namespace WaterBot.Commands
                     Color = DiscordColor.CornflowerBlue
                 }));
         }
+
+        [Command("changetimezone"), Description("Show the current leaderboard for this server."), Aliases("changetz")]
+        public async Task ChangeTimezone(CommandContext ctx)
+        {
+            UserData data = UserDataManager.GetData(ctx.User);
+
+            if (data == null)
+            {
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Color = DiscordColor.Red,
+                    Title = $"{_dropletMain} No configuration found!",
+                    Description = "For more information, type `wb!help setup`"
+                });
+                return;
+            }
+
+            InteractivityExtension interactivity = ctx.Client.GetInteractivity();
+
+            DiscordMessage regionSelection = await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Color = DiscordColor.CornflowerBlue,
+                    Title = $"{_dropletMain} Timezone selection",
+                    Description = "Choose the region you're in:"
+                }
+                .AddField("Available regions:",
+                    "Africa\nAmerica\nAntarctica\nAsia\nAtlantic\nAustralia\nEurope\nIndian\nPacific")
+                .WithFooter("Answer with the name of your corresponding region."));
+
+
+            InteractivityResult<DiscordMessage> result =
+                await interactivity.WaitForMessageAsync(message => message.Author == ctx.Member);
+
+            if (result.TimedOut)
+            {
+                await regionSelection.ModifyAsync(new DiscordEmbedBuilder
+                {
+                    Color = DiscordColor.Grayple,
+                    Title = $"{_dropletMain} Timezone selection",
+                    Description = $"{_dropletCross} Timed out!"
+                }.Build());
+                await regionSelection.DeleteAllReactionsAsync();
+                return;
+            }
+
+            TextInfo ti = CultureInfo.InvariantCulture.TextInfo;
+            string selectedRegion = ti.ToTitleCase(result.Result.Content);
+
+            await result.Result.DeleteAsync();
+
+            if (string.IsNullOrWhiteSpace(selectedRegion))
+            {
+                await regionSelection.DeleteAsync();
+                await ctx.RespondAsync("Invalid reaction! Please run the command again again.");
+                return;
+            }
+
+            using WorldTimeApiClient api = new WorldTimeApiClient();
+
+            List<string> regions;
+            try
+            {
+                regions = (List<string>) await api.GetRegions(selectedRegion);
+            }
+            catch (Exception)
+            {
+                await regionSelection.ModifyAsync(new DiscordEmbedBuilder
+                {
+                    Color = DiscordColor.Grayple,
+                    Title = $"{_dropletMain} Timezone selection",
+                    Description = "Incorrect selection! Please run the command again."
+                }.Build());
+                await regionSelection.DeleteAllReactionsAsync();
+                return;
+            }
+
+            string regionsList = regions.Aggregate("",
+                (current,
+                        region) => current +
+                                   region.Replace(selectedRegion + "/",
+                                       "") +
+                                   "\n");
+
+            await regionSelection.DeleteAllReactionsAsync();
+
+            DiscordEmbedBuilder builder = new DiscordEmbedBuilder
+                {
+                    Color = DiscordColor.CornflowerBlue,
+                    Title =  $"{_dropletMain} Timezone selection",
+                    Description = "Choose the region you're in:"
+                }
+                .WithFooter("Answer with the name of the city corresponding to your region.");
+
+            if (regionsList.Length < 1024)
+            {
+                builder.AddField("Available regions:", regionsList);
+            }
+            else
+            {
+                IEnumerable<IEnumerable<char>> chunks = regionsList.ChunkBy(1024);
+
+                foreach (IEnumerable<char> chars in chunks)
+                {
+                    string s = new string(chars.ToArray());
+                    builder.AddField("Available regions", s);
+                }
+            }
+
+            await regionSelection.ModifyAsync(builder.Build());
+
+            InteractivityResult<DiscordMessage> answer =
+                await interactivity.WaitForMessageAsync(message => message.Author == ctx.Member);
+
+            if (result.TimedOut)
+            {
+                await regionSelection.ModifyAsync(new DiscordEmbedBuilder
+                {
+                    Color = DiscordColor.Grayple,
+                    Title = $"{_dropletMain} Timezone selection",
+                    Description = $"{_dropletCross} Timed out!"
+                }.Build());
+                await regionSelection.DeleteAllReactionsAsync();
+                return;
+            }
+
+            string selectedCity = ti.ToTitleCase(answer.Result.Content);
+
+            TimeZoneResponse timeZone;
+            try
+            {
+                timeZone = await api.GetTimeZone(
+                        $"{selectedRegion}/{selectedCity}");
+            }
+            catch (Exception)
+            {
+                await regionSelection.ModifyAsync(new DiscordEmbedBuilder
+                {
+                    Color = DiscordColor.Grayple,
+                    Title = $"{_dropletMain} Timezone selection",
+                    Description = $"{_dropletCross} Incorrect selection! Please run the command again."
+                }.Build());
+                await regionSelection.DeleteAllReactionsAsync();
+                return;
+            }
+
+            TimeSpan utcOffset = TimeSpan.FromHours(timeZone.UtcOffset);
+
+            data.UtcOffset = utcOffset;
+
+            UserDataManager.SaveData(data);
+        }
     }
 }
