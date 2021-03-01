@@ -245,9 +245,8 @@ namespace WaterBot.Commands
                 GuildId = ctx.Guild.Id,
                 AmountPerDay = amountPerDay,
                 ReminderEnabled = true,
-                // ReSharper disable once PossibleNullReferenceException
-                WaterStreak = data.WaterStreak,
-                BestWaterStreak = data.BestWaterStreak
+                WaterStreak = 0,
+                BestWaterStreak = 0
             };
 
             userData.RemindersList = UserData.CalculateReminders(userData)
