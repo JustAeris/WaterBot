@@ -322,9 +322,10 @@ namespace WaterBot.Commands
                     Title = $"{_dropletMain} No configuration found!",
                     Description = $"{_dropletCross} For more information, type `wb!help setup`"
                 });
+                return;
             }
 
-            Debug.Assert(userData != null, nameof(userData) + " != null");
+            Debug.Assert(true, nameof(userData) + " != null");
             userData.ReminderEnabled = true;
             UserDataManager.SaveData(userData);
 
@@ -344,9 +345,10 @@ namespace WaterBot.Commands
                         Title = $"{_dropletMain} No configuration found!",
                         Description = "For more information, type `wb!help setup`"
                     });
+                return;
             }
 
-            Debug.Assert(userData != null, nameof(userData) + " != null");
+            Debug.Assert(true, nameof(userData) + " != null");
             userData.ReminderEnabled = false;
             UserDataManager.SaveData(userData);
 
